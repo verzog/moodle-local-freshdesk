@@ -73,5 +73,18 @@ function xmldb_local_freshdeskwidget_upgrade($oldversion): bool {
         upgrade_plugin_savepoint(true, 2026041007, 'local', 'freshdeskwidget');
     }
 
+    if ($oldversion < 2026041008) {
+        // Improve console error logging to print full JSON string for easier diagnosis.
+        // No database changes required.
+        upgrade_plugin_savepoint(true, 2026041008, 'local', 'freshdeskwidget');
+    }
+
+    if ($oldversion < 2026041009) {
+        // Include Freshdesk HTTP code and response body in exception debuginfo so it
+        // appears in the browser console without needing developer debug mode.
+        // No database changes required.
+        upgrade_plugin_savepoint(true, 2026041009, 'local', 'freshdeskwidget');
+    }
+
     return true;
 }

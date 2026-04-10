@@ -128,18 +128,19 @@ class submit_ticket extends external_api {
             'Content-Type: application/json',
             'Authorization: Basic ' . base64_encode($apikey . ':X'),
         ]);
-        $curl->post($portalurl . '/api/v2/tickets', $payload);
+        $responsebody = $curl->post($portalurl . '/api/v2/tickets', $payload);
 
         $info     = $curl->get_info();
         $httpcode = (int) ($info['http_code'] ?? 0);
 
         if ($httpcode !== 201) {
-            debugging(
-                'local_freshdeskwidget: Freshdesk API returned HTTP ' . $httpcode .
-                ' for ' . $portalurl . '/api/v2/tickets',
-                DEBUG_DEVELOPER
+            throw new \moodle_exception(
+                'errorsubmitting',
+                'local_freshdeskwidget',
+                '',
+                null,
+                'HTTP ' . $httpcode . ' — ' . substr((string) $responsebody, 0, 300)
             );
-            throw new \moodle_exception('errorsubmitting', 'local_freshdeskwidget');
         }
 
         return ['success' => true];

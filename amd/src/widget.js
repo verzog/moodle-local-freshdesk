@@ -470,7 +470,7 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
             }
             return result;
         }).catch(function(err) {
-            window.console.error('local_freshdeskwidget: ticket submission failed', err);
+            window.console.error('local_freshdeskwidget: ticket submission failed: ' + JSON.stringify(err));
             errorEl.textContent   = 'Failed to submit ticket. Please try again.';
             errorEl.style.display = 'block';
             submitBtn.disabled    = false;
