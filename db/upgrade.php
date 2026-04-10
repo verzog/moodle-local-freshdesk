@@ -34,9 +34,8 @@ defined('MOODLE_INTERNAL') || die();
  */
 function xmldb_local_freshdeskwidget_upgrade(int $oldversion): bool {
 
-    // Future upgrade steps go here, e.g.:
+    // Future upgrade steps should be added here following this pattern.
     // if ($oldversion < 2026050100) {
-    //     // Do something.
     //     upgrade_plugin_savepoint(true, 2026050100, 'local', 'freshdeskwidget');
     // }
 
