@@ -132,6 +132,11 @@ class submit_ticket extends external_api {
         $httpcode = (int) ($info['http_code'] ?? 0);
 
         if ($httpcode !== 201) {
+            debugging(
+                'local_freshdeskwidget: Freshdesk API returned HTTP ' . $httpcode .
+                ' for ' . $portalurl . '/api/v2/tickets',
+                DEBUG_DEVELOPER
+            );
             throw new \moodle_exception('errorsubmitting', 'local_freshdeskwidget');
         }
 

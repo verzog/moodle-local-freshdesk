@@ -60,5 +60,11 @@ function xmldb_local_freshdeskwidget_upgrade($oldversion): bool {
         upgrade_plugin_savepoint(true, 2026041005, 'local', 'freshdeskwidget');
     }
 
+    if ($oldversion < 2026041006) {
+        // Add debugging output and console logging to help diagnose ticket submission errors.
+        // No database changes required.
+        upgrade_plugin_savepoint(true, 2026041006, 'local', 'freshdeskwidget');
+    }
+
     return true;
 }
