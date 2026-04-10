@@ -22,6 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * Runs upgrade steps between plugin versions.
  *
@@ -48,6 +50,14 @@ function xmldb_local_freshdeskwidget_upgrade($oldversion): bool {
         // Moodle passes oldversion as a string; strict types caused a silent TypeError.
         // No database changes required.
         upgrade_plugin_savepoint(true, 2026041004, 'local', 'freshdeskwidget');
+    }
+
+    if ($oldversion < 2026041005) {
+        // Coding standards pass: added MOODLE_INTERNAL guard to lib.php, install.php,
+        // and upgrade.php; added @package/@copyright/@license to class docblocks;
+        // fixed @return type shape in external function; cleaned inline comment style.
+        // No database changes required.
+        upgrade_plugin_savepoint(true, 2026041005, 'local', 'freshdeskwidget');
     }
 
     return true;

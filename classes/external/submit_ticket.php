@@ -33,6 +33,10 @@ use core_external\external_value;
 
 /**
  * Proxies ticket creation to the Freshdesk REST API, keeping the API key server-side.
+ *
+ * @package    local_freshdeskwidget
+ * @copyright  2026 verzog
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class submit_ticket extends external_api {
 
@@ -63,7 +67,7 @@ class submit_ticket extends external_api {
      * @param string $currenturl URL of the page the user was on.
      * @param string $coursename Name of the current course, or empty string.
      * @param string $userrole   Role label (Staff or Student), or empty string.
-     * @return array{success: bool}
+     * @return array
      */
     public static function execute(
         string $subject,
