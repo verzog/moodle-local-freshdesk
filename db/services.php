@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin version and metadata.
+ * External functions registered for local_freshdeskwidget.
  *
  * @package    local_freshdeskwidget
  * @copyright  2026 verzog
@@ -26,8 +26,12 @@ declare(strict_types=1);
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'local_freshdeskwidget';
-$plugin->version   = 2026041003;
-$plugin->requires  = 2024100700; // Requires Moodle 4.5 or later.
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.3.0';
+$functions = [
+    'local_freshdeskwidget_submit_ticket' => [
+        'classname'     => \local_freshdeskwidget\external\submit_ticket::class,
+        'description'   => 'Submit a Freshdesk support ticket on behalf of the current user.',
+        'type'          => 'write',
+        'ajax'          => true,
+        'loginrequired' => true,
+    ],
+];

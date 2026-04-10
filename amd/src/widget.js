@@ -5,9 +5,9 @@
  * Renders a floating Help button that opens a modal containing:
  * - A search box that queries the Freshdesk knowledge base via REST API
  * - Article results displayed inline
- * - A contact support button that opens a pre-filled ticket form in a new tab
+ * - A native contact form that submits tickets via Moodle AJAX (server-side proxy)
  */
-define(['core/config'], function(mdlConfig) {
+define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
 
     var cfg = {};
 
@@ -132,15 +132,43 @@ define(['core/config'], function(mdlConfig) {
             '  color: #666; font-size: 14px;',
             '}',
 
-            /* Contact confirmation message */
-            '#fd-contact-confirm {',
-            '  display: none; margin: 12px 16px; padding: 12px 16px;',
-            '  background: #f0faf0; border: 1px solid #b2dfb2;',
-            '  border-radius: 6px; font-size: 14px; color: #2e7d32;',
-            '  text-align: center;',
+            /* Contact form panel */
+            '#fd-contact-form { display: none; flex-direction: column; }',
+            '#fd-contact-form-back {',
+            '  padding: 10px 16px; background: #f5f5f5;',
+            '  border-bottom: 1px solid #e5e5e5; flex-shrink: 0;',
             '}',
+            '#fd-contact-form-back button {',
+            '  background: none; border: none; color: ' + cfg.widgetColor + ';',
+            '  font-size: 13px; cursor: pointer; padding: 0;',
+            '}',
+            '#fd-contact-fields {',
+            '  padding: 16px; display: flex; flex-direction: column; gap: 12px;',
+            '}',
+            '#fd-contact-fields label {',
+            '  font-size: 13px; color: #333; font-weight: 600;',
+            '  display: block; margin-bottom: 4px;',
+            '}',
+            '#fd-ticket-subject, #fd-ticket-message {',
+            '  width: 100%; box-sizing: border-box; padding: 8px 12px;',
+            '  border: 1px solid #ccc; border-radius: 6px;',
+            '  font-size: 14px; font-family: inherit;',
+            '}',
+            '#fd-ticket-message { height: 120px; resize: vertical; }',
+            '#fd-contact-submit {',
+            '  padding: 9px 20px; background: ' + cfg.widgetColor + '; color: #fff;',
+            '  border: none; border-radius: 6px; font-size: 14px;',
+            '  cursor: pointer; width: 100%;',
+            '}',
+            '#fd-contact-submit:disabled { opacity: 0.6; cursor: not-allowed; }',
+            '#fd-contact-error { color: #c00; font-size: 13px; display: none; }',
+            '#fd-contact-success {',
+            '  display: none; text-align: center; padding: 32px 16px;',
+            '}',
+            '#fd-contact-success-msg { color: #2e7d32; font-size: 15px; margin-bottom: 8px; }',
+            '#fd-contact-success-sub { color: #666; font-size: 13px; }',
 
-            /* Contact button at bottom of results */
+            /* Contact button at bottom */
             '#fd-contact-bar {',
             '  padding: 12px 16px; border-top: 1px solid #e5e5e5;',
             '  flex-shrink: 0; text-align: center;',
@@ -203,9 +231,26 @@ define(['core/config'], function(mdlConfig) {
             '    <div id="fd-article-content"></div>',
             '  </div>',
 
-            '  <div id="fd-contact-confirm">',
-            '    &#10003; The support form has been opened in a new tab.',
-            '    It has been pre-filled with your details.',
+            '  <div id="fd-contact-form">',
+            '    <div id="fd-contact-form-back">',
+            '      <button id="fd-contact-back-btn">&#8592; Back</button>',
+            '    </div>',
+            '    <div id="fd-contact-success">',
+            '      <p id="fd-contact-success-msg">&#10003; Your ticket has been submitted!</p>',
+            '      <p id="fd-contact-success-sub">We\'ll reply to your registered email address.</p>',
+            '    </div>',
+            '    <div id="fd-contact-fields">',
+            '      <div>',
+            '        <label for="fd-ticket-subject">Subject</label>',
+            '        <input id="fd-ticket-subject" type="text" maxlength="255" />',
+            '      </div>',
+            '      <div>',
+            '        <label for="fd-ticket-message">How can we help?</label>',
+            '        <textarea id="fd-ticket-message" placeholder="Describe your issue..."></textarea>',
+            '      </div>',
+            '      <p id="fd-contact-error"></p>',
+            '      <button id="fd-contact-submit">Send</button>',
+            '    </div>',
             '  </div>',
             '</div>',
 
@@ -336,9 +381,9 @@ define(['core/config'], function(mdlConfig) {
         var articleContent = document.getElementById('fd-article-content');
         var openBtn        = document.getElementById('fd-article-open-btn');
 
-        document.getElementById('fd-articles').style.display = 'none';
-        document.getElementById('fd-status').style.display   = 'none';
-        document.getElementById('fd-contact-confirm').style.display = 'none';
+        document.getElementById('fd-articles').style.display      = 'none';
+        document.getElementById('fd-status').style.display        = 'none';
+        document.getElementById('fd-contact-form').style.display  = 'none';
         articleView.style.display = 'flex';
 
         articleContent.innerHTML = '<p style="color:#999;text-align:center;padding:20px;">Loading...</p>';
@@ -358,39 +403,118 @@ define(['core/config'], function(mdlConfig) {
     }
 
     // -------------------------------------------------------------------------
-    // Open contact form in new tab
+    // Show native contact form panel
     // -------------------------------------------------------------------------
-    function openContactForm() {
-        window.open(cfg.ticketFormUrl, '_blank');
-        document.getElementById('fd-contact-confirm').style.display = 'block';
+    function showContactForm() {
+        document.getElementById('fd-search-panel').style.display  = 'none';
+        document.getElementById('fd-contact-bar').style.display   = 'none';
+        document.getElementById('fd-status').style.display        = 'none';
+        document.getElementById('fd-articles').style.display      = 'none';
+        document.getElementById('fd-article-view').style.display  = 'none';
+
+        // Pre-fill subject on first open.
+        var subjectInput = document.getElementById('fd-ticket-subject');
+        if (subjectInput && !subjectInput.value) {
+            var subject = 'Support request';
+            if (cfg.courseName) {
+                subject += ' - ' + cfg.courseName;
+            }
+            if (cfg.userRole) {
+                subject += ' [' + cfg.userRole + ']';
+            }
+            subjectInput.value = subject;
+        }
+
+        document.getElementById('fd-contact-form').style.display = 'flex';
+        document.getElementById('fd-ticket-message').focus();
+    }
+
+    // -------------------------------------------------------------------------
+    // Submit ticket via Moodle AJAX (server-side Freshdesk API proxy)
+    // -------------------------------------------------------------------------
+    function submitTicket() {
+        var subject   = document.getElementById('fd-ticket-subject').value.trim();
+        var message   = document.getElementById('fd-ticket-message').value.trim();
+        var errorEl   = document.getElementById('fd-contact-error');
+        var submitBtn = document.getElementById('fd-contact-submit');
+
+        errorEl.style.display = 'none';
+
+        if (!subject) {
+            errorEl.textContent = 'Please enter a subject.';
+            errorEl.style.display = 'block';
+            return;
+        }
+        if (!message) {
+            errorEl.textContent = 'Please describe your issue.';
+            errorEl.style.display = 'block';
+            return;
+        }
+
+        submitBtn.disabled    = true;
+        submitBtn.textContent = 'Sending...';
+
+        Ajax.call([{
+            methodname: 'local_freshdeskwidget_submit_ticket',
+            args: {
+                subject:    subject,
+                message:    message,
+                currenturl: cfg.currentUrl  || '',
+                coursename: cfg.courseName  || '',
+                userrole:   cfg.userRole    || '',
+            }
+        }])[0].then(function(result) {
+            if (result.success) {
+                document.getElementById('fd-contact-fields').style.display  = 'none';
+                document.getElementById('fd-contact-success').style.display = 'block';
+            }
+            return result;
+        }).catch(function() {
+            errorEl.textContent   = 'Failed to submit ticket. Please try again.';
+            errorEl.style.display = 'block';
+            submitBtn.disabled    = false;
+            submitBtn.textContent = 'Send';
+        });
     }
 
     // -------------------------------------------------------------------------
     // Reset modal to default state
     // -------------------------------------------------------------------------
     function resetModal() {
-        document.getElementById('fd-articles').style.display         = '';
-        document.getElementById('fd-articles').innerHTML              = '';
-        document.getElementById('fd-status').style.display            = '';
-        document.getElementById('fd-status').textContent              =
+        document.getElementById('fd-articles').style.display        = '';
+        document.getElementById('fd-articles').innerHTML             = '';
+        document.getElementById('fd-status').style.display          = '';
+        document.getElementById('fd-status').textContent            =
             'Search for help articles above, or contact support below.';
-        document.getElementById('fd-article-view').style.display     = 'none';
-        document.getElementById('fd-contact-confirm').style.display  = 'none';
-        document.getElementById('fd-contact-bar').style.display      = '';
-        document.getElementById('fd-search-panel').style.display     = '';
-        document.getElementById('fd-search-input').value             = '';
+        document.getElementById('fd-article-view').style.display    = 'none';
+        document.getElementById('fd-contact-form').style.display    = 'none';
+        document.getElementById('fd-contact-bar').style.display     = '';
+        document.getElementById('fd-search-panel').style.display    = '';
+        document.getElementById('fd-search-input').value            = '';
+
+        // Reset contact form state.
+        document.getElementById('fd-ticket-subject').value          = '';
+        document.getElementById('fd-ticket-message').value          = '';
+        document.getElementById('fd-contact-error').style.display   = 'none';
+        document.getElementById('fd-contact-fields').style.display  = '';
+        document.getElementById('fd-contact-success').style.display = 'none';
+        var submitBtn = document.getElementById('fd-contact-submit');
+        submitBtn.disabled    = false;
+        submitBtn.textContent = 'Send';
     }
 
     // -------------------------------------------------------------------------
     // Wire up events
     // -------------------------------------------------------------------------
     function wireEvents(overlay) {
-        var helpBtn     = document.getElementById('fd-help-btn');
-        var closeBtn    = document.getElementById('fd-modal-close');
-        var searchBtn   = document.getElementById('fd-search-btn');
-        var searchInput = document.getElementById('fd-search-input');
-        var contactBtn  = document.getElementById('fd-contact-btn');
-        var artBackBtn  = document.getElementById('fd-article-back-btn');
+        var helpBtn        = document.getElementById('fd-help-btn');
+        var closeBtn       = document.getElementById('fd-modal-close');
+        var searchBtn      = document.getElementById('fd-search-btn');
+        var searchInput    = document.getElementById('fd-search-input');
+        var contactBtn     = document.getElementById('fd-contact-btn');
+        var artBackBtn     = document.getElementById('fd-article-back-btn');
+        var contactBackBtn = document.getElementById('fd-contact-back-btn');
+        var submitBtn      = document.getElementById('fd-contact-submit');
 
         helpBtn.addEventListener('click', function() {
             overlay.style.display = 'block';
@@ -416,8 +540,8 @@ define(['core/config'], function(mdlConfig) {
             status.style.display = '';
             status.textContent   = 'Searching...';
             document.getElementById('fd-articles').innerHTML = '';
-            document.getElementById('fd-article-view').style.display = 'none';
-            document.getElementById('fd-contact-confirm').style.display = 'none';
+            document.getElementById('fd-article-view').style.display  = 'none';
+            document.getElementById('fd-contact-form').style.display  = 'none';
 
             searchArticles(term, function(err, results) {
                 if (err) {
@@ -433,7 +557,16 @@ define(['core/config'], function(mdlConfig) {
             if (e.key === 'Enter') { doSearch(); }
         });
 
-        contactBtn.addEventListener('click', openContactForm);
+        contactBtn.addEventListener('click', showContactForm);
+
+        contactBackBtn.addEventListener('click', function() {
+            document.getElementById('fd-contact-form').style.display  = 'none';
+            document.getElementById('fd-search-panel').style.display  = '';
+            document.getElementById('fd-contact-bar').style.display   = '';
+            document.getElementById('fd-status').style.display        = '';
+        });
+
+        submitBtn.addEventListener('click', submitTicket);
 
         artBackBtn.addEventListener('click', function() {
             document.getElementById('fd-article-view').style.display = 'none';
@@ -449,7 +582,7 @@ define(['core/config'], function(mdlConfig) {
         init: function() {
             cfg = window.local_freshdeskwidget_config || {};
 
-            if (!cfg.portalUrl || !cfg.apiKey) {
+            if (!cfg.portalUrl) {
                 console.warn('local_freshdeskwidget: missing config, widget not loaded.');
                 return;
             }

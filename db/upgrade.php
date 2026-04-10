@@ -34,8 +34,15 @@ function xmldb_local_freshdeskwidget_upgrade(int $oldversion): bool {
 
     if ($oldversion < 2026041002) {
         // Ticket form URL now pre-fills subject and description with course/role context.
-        // No database changes required — hook re-registration is automatic on upgrade.
+        // No database changes required.
         upgrade_plugin_savepoint(true, 2026041002, 'local', 'freshdeskwidget');
+    }
+
+    if ($oldversion < 2026041003) {
+        // Contact form replaced with native Moodle form submitting via PHP proxy to Freshdesk API.
+        // API key is now kept server-side. New external function: local_freshdeskwidget_submit_ticket.
+        // No database changes required.
+        upgrade_plugin_savepoint(true, 2026041003, 'local', 'freshdeskwidget');
     }
 
     return true;
