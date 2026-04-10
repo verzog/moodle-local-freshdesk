@@ -24,8 +24,6 @@
 
 declare(strict_types=1);
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Runs upgrade steps between plugin versions.
  *
@@ -33,11 +31,5 @@ defined('MOODLE_INTERNAL') || die();
  * @return bool
  */
 function xmldb_local_freshdeskwidget_upgrade(int $oldversion): bool {
-
-    // Future upgrade steps should be added here following this pattern.
-    // if ($oldversion < 2026050100) {
-    //     upgrade_plugin_savepoint(true, 2026050100, 'local', 'freshdeskwidget');
-    // }
-
     return true;
 }

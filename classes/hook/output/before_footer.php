@@ -33,7 +33,6 @@ use core\hook\output\before_footer_html_generation;
  * Injects Freshdesk widget configuration and AMD module into every Moodle page.
  */
 class before_footer {
-
     /**
      * Callback for before_footer_html_generation hook.
      *
