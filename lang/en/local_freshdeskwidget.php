@@ -24,14 +24,15 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['api_key']             = 'Freshdesk API key';
-$string['api_key_desc']        = 'Your Freshdesk API key (Profile Settings → Your API Key). Used to retrieve knowledge base articles.';
-$string['enabled']             = 'Enable widget';
-$string['enabled_desc']        = 'Show the Freshdesk support widget on all Moodle pages.';
-$string['hide_for_admins']     = 'Hide for site administrators';
+$string['api_key']              = 'Freshdesk API key';
+$string['api_key_desc']         = 'Your Freshdesk API key (Profile Settings > Your API Key). Used to search knowledge base articles and submit support tickets server-side.';
+$string['enabled']              = 'Enable widget';
+$string['enabled_desc']         = 'Show the Freshdesk support widget on all Moodle pages.';
+$string['errorsubmitting']      = 'Failed to submit your support ticket. Please check the plugin configuration or try again later.';
+$string['hide_for_admins']      = 'Hide for site administrators';
 $string['hide_for_admins_desc'] = 'Do not show the widget to Moodle site administrators.';
-$string['pluginname']          = 'Freshdesk Support Widget';
-$string['portal_url']          = 'Freshdesk portal URL';
-$string['portal_url_desc']     = 'Your Freshdesk account URL, e.g. https://yourcompany.freshdesk.com';
-$string['widget_color']        = 'Widget button colour';
-$string['widget_color_desc']   = 'Hex colour for the Get Help button, e.g. #006B6B';
+$string['pluginname']           = 'Freshdesk Support Widget';
+$string['portal_url']           = 'Freshdesk portal URL';
+$string['portal_url_desc']      = 'Your Freshdesk account URL, e.g. https://yourcompany.freshdesk.com';
+$string['widget_color']         = 'Widget button colour';
+$string['widget_color_desc']    = 'Hex colour for the Get Help button, e.g. #006B6B';

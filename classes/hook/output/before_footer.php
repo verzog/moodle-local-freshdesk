@@ -75,32 +75,16 @@ class before_footer {
         $apikey      = (string) ($config->api_key ?? '');
         $widgetcolor = (string) ($config->widget_color ?? '#006B6B');
 
-        // Compose a pre-filled subject that gives agents instant context.
-        if ($coursename !== '') {
-            $subject = 'Support request - ' . $coursename . ' [' . $rolelabel . ']';
-        } else {
-            $subject = 'Support request [' . $rolelabel . ']';
-        }
-
-        // Build ticket form URL — pre-fills name, email, subject, and source URL.
-        $ticketformurl = $portalurl . '/support/tickets/new?' . http_build_query([
-            'email'       => $useremail,
-            'name'        => $username,
-            'subject'     => $subject,
-            'description' => 'Page: ' . $currenturl,
-        ]);
-
         $PAGE->requires->data_for_js('local_freshdeskwidget_config', [
-            'portalUrl'     => $portalurl,
-            'apiKey'        => $apikey,
-            'ticketFormUrl' => $ticketformurl,
-            'userEmail'     => $useremail,
-            'userName'      => $username,
-            'currentUrl'    => $currenturl,
-            'courseName'    => $coursename,
-            'userRole'      => $rolelabel,
-            'isLoggedIn'    => $isloggedin,
-            'widgetColor'   => $widgetcolor,
+            'portalUrl'   => $portalurl,
+            'apiKey'      => $apikey,
+            'userEmail'   => $useremail,
+            'userName'    => $username,
+            'currentUrl'  => $currenturl,
+            'courseName'  => $coursename,
+            'userRole'    => $rolelabel,
+            'isLoggedIn'  => $isloggedin,
+            'widgetColor' => $widgetcolor,
         ]);
 
         $PAGE->requires->js_call_amd('local_freshdeskwidget/widget', 'init');
