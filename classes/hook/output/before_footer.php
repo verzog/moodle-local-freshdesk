@@ -22,7 +22,12 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+declare(strict_types=1);
+
 namespace local_freshdeskwidget\hook\output;
+
+use core\context\course as course_context;
+use core\hook\output\before_footer_html_generation;
 
 /**
  * Injects Freshdesk widget configuration and AMD module into every Moodle page.
@@ -30,54 +35,53 @@ namespace local_freshdeskwidget\hook\output;
 class before_footer {
 
     /**
-     * Callback for core\hook\output\before_footer_html_generation.
+     * Callback for before_footer_html_generation hook.
      *
-     * @param \core\hook\output\before_footer_html_generation $hook The hook instance.
+     * Passes Freshdesk configuration to JavaScript and initialises the AMD
+     * widget module. Skipped when the plugin is disabled or the current user
+     * is an admin with the hide-for-admins setting enabled.
+     *
+     * @param before_footer_html_generation $hook The hook instance.
      */
-    public static function callback(\core\hook\output\before_footer_html_generation $hook): void {
+    public static function callback(before_footer_html_generation $hook): void {
         global $USER, $PAGE, $COURSE;
 
         $isloggedin = isloggedin() && !isguestuser();
         $isadmin    = is_siteadmin();
 
-        // Get plugin config.
         $config = get_config('local_freshdeskwidget');
 
         if (empty($config->enabled)) {
             return;
         }
 
-        // Suppress for admins if configured.
         if ($isadmin && !empty($config->hide_for_admins)) {
             return;
         }
 
-        // Determine user role label.
-        $context   = \context_course::instance($COURSE->id);
+        // Determine user role label based on course capability.
+        $context   = course_context::instance((int) $COURSE->id);
         $isstaff   = has_capability('moodle/course:manageactivities', $context);
         $rolelabel = $isstaff ? 'Staff' : 'Student';
 
-        // User details — empty strings if not logged in.
+        // User details — empty strings for guests.
         $useremail  = $isloggedin ? $USER->email : '';
         $username   = $isloggedin ? fullname($USER) : '';
         $currenturl = $PAGE->url->out(false);
         $coursename = ($COURSE->id > 1) ? format_string($COURSE->fullname) : '';
 
-        // Freshdesk settings.
-        $portalurl   = rtrim($config->portal_url ?? 'https://thefeaturecreep.freshdesk.com', '/');
-        $apikey      = $config->api_key ?? '';
-        $widgetcolor = $config->widget_color ?? '#006B6B';
+        // Freshdesk settings with typed defaults.
+        $portalurl   = rtrim((string) ($config->portal_url ?? 'https://thefeaturecreep.freshdesk.com'), '/');
+        $apikey      = (string) ($config->api_key ?? '');
+        $widgetcolor = (string) ($config->widget_color ?? '#006B6B');
 
-        // Build ticket form URL with context params.
-        $ticketurl    = $portalurl . '/support/tickets/new';
-        $ticketparams = http_build_query([
+        // Build pre-filled ticket form URL.
+        $ticketformurl = $portalurl . '/support/tickets/new?' . http_build_query([
             'url'   => $currenturl,
             'name'  => $username,
             'email' => $useremail,
         ]);
-        $ticketformurl = $ticketurl . '?' . $ticketparams;
 
-        // Pass data to JavaScript and initialise the AMD module.
         $PAGE->requires->data_for_js('local_freshdeskwidget_config', [
             'portalUrl'     => $portalurl,
             'apiKey'        => $apikey,
