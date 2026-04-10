@@ -31,6 +31,10 @@ use core\hook\output\before_footer_html_generation;
 
 /**
  * Injects Freshdesk widget configuration and AMD module into every Moodle page.
+ *
+ * @package    local_freshdeskwidget
+ * @copyright  2026 verzog
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class before_footer {
     /**
@@ -41,6 +45,7 @@ class before_footer {
      * is an admin with the hide-for-admins setting enabled.
      *
      * @param before_footer_html_generation $hook The hook instance.
+     * @return void
      */
     public static function callback(before_footer_html_generation $hook): void {
         global $USER, $PAGE, $COURSE;
@@ -64,7 +69,7 @@ class before_footer {
         $isstaff   = has_capability('moodle/course:manageactivities', $context);
         $rolelabel = $isstaff ? 'Staff' : 'Student';
 
-        // Resolve user details — empty strings for guests.
+        // Resolve user details, empty strings for guests.
         $useremail  = $isloggedin ? $USER->email : '';
         $username   = $isloggedin ? fullname($USER) : '';
         $currenturl = $PAGE->url->out(false);
