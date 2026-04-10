@@ -5,7 +5,7 @@
  * Renders a floating Help button that opens a modal containing:
  * - A search box that queries the Freshdesk knowledge base via REST API
  * - Article results displayed inline
- * - A fallback contact form (iframe to Freshdesk portal)
+ * - A contact support button that opens a pre-filled ticket form in a new tab
  */
 define(['core/config'], function(mdlConfig) {
 
@@ -126,24 +126,18 @@ define(['core/config'], function(mdlConfig) {
             '  color: ' + cfg.widgetColor + ';',
             '}',
 
-            /* Contact form iframe */
-            '#fd-form-panel { display: none; flex-direction: column; height: 100%; }',
-            '#fd-form-back {',
-            '  padding: 10px 16px; background: #f5f5f5;',
-            '  border-bottom: 1px solid #e5e5e5; flex-shrink: 0;',
-            '}',
-            '#fd-form-back button {',
-            '  background: none; border: none; color: ' + cfg.widgetColor + ';',
-            '  font-size: 13px; cursor: pointer; padding: 0;',
-            '}',
-            '#fd-form-iframe {',
-            '  flex: 1; border: none; width: 100%;',
-            '}',
-
             /* Status messages */
             '#fd-status {',
             '  padding: 16px; text-align: center;',
             '  color: #666; font-size: 14px;',
+            '}',
+
+            /* Contact confirmation message */
+            '#fd-contact-confirm {',
+            '  display: none; margin: 12px 16px; padding: 12px 16px;',
+            '  background: #f0faf0; border: 1px solid #b2dfb2;',
+            '  border-radius: 6px; font-size: 14px; color: #2e7d32;',
+            '  text-align: center;',
             '}',
 
             /* Contact button at bottom of results */
@@ -173,38 +167,34 @@ define(['core/config'], function(mdlConfig) {
     // Build modal DOM
     // -------------------------------------------------------------------------
     function buildModal() {
-        // Overlay
         var overlay = document.createElement('div');
         overlay.id = 'fd-modal-overlay';
 
-        // Modal
         var modal = document.createElement('div');
         modal.id = 'fd-modal';
         modal.setAttribute('role', 'dialog');
         modal.setAttribute('aria-modal', 'true');
         modal.setAttribute('aria-label', 'SCCA Support');
 
-        // Header
         modal.innerHTML = [
             '<div id="fd-modal-header">',
             '  <h2>&#128587; SCCA Support</h2>',
             '  <button id="fd-modal-close" aria-label="Close support widget">&times;</button>',
             '</div>',
 
-            // Search panel
             '<div id="fd-search-panel">',
             '  <div id="fd-search-row">',
-            '    <input id="fd-search-input" type="text" placeholder="Search help articles..." aria-label="Search help articles"/>',
+            '    <input id="fd-search-input" type="text"',
+            '           placeholder="Search help articles..."',
+            '           aria-label="Search help articles"/>',
             '    <button id="fd-search-btn">Search</button>',
             '  </div>',
             '</div>',
 
-            // Results area
             '<div id="fd-results">',
             '  <div id="fd-status">Search for help articles above, or contact support below.</div>',
             '  <div id="fd-articles"></div>',
 
-            '  <!-- Full article view -->',
             '  <div id="fd-article-view">',
             '    <div id="fd-article-back">',
             '      <button id="fd-article-back-btn">&#8592; Back to results</button>',
@@ -213,16 +203,12 @@ define(['core/config'], function(mdlConfig) {
             '    <div id="fd-article-content"></div>',
             '  </div>',
 
-            '  <!-- Contact form -->',
-            '  <div id="fd-form-panel">',
-            '    <div id="fd-form-back">',
-            '      <button id="fd-form-back-btn">&#8592; Back to results</button>',
-            '    </div>',
-            '    <iframe id="fd-form-iframe" title="Contact Support Form" src=""></iframe>',
+            '  <div id="fd-contact-confirm">',
+            '    &#10003; The support form has been opened in a new tab.',
+            '    It has been pre-filled with your details.',
             '  </div>',
             '</div>',
 
-            // Contact bar
             '<div id="fd-contact-bar">',
             '  <button id="fd-contact-btn">&#9993; Contact Support</button>',
             '</div>',
@@ -323,12 +309,15 @@ define(['core/config'], function(mdlConfig) {
             title.textContent = article.title || 'Untitled';
             title.addEventListener('click', function(e) {
                 e.preventDefault();
-                showArticle(article.id, article.title, cfg.portalUrl + '/support/solutions/articles/' + article.id);
+                showArticle(
+                    article.id,
+                    article.title,
+                    cfg.portalUrl + '/support/solutions/articles/' + article.id
+                );
             });
 
             var desc = document.createElement('p');
             desc.className = 'fd-article-desc';
-            // Strip HTML tags from description snippet
             var tmp = document.createElement('div');
             tmp.innerHTML = article.description_text || article.description || '';
             desc.textContent = (tmp.textContent || '').substring(0, 120) + '...';
@@ -343,26 +332,25 @@ define(['core/config'], function(mdlConfig) {
     // Show single article inline
     // -------------------------------------------------------------------------
     function showArticle(articleId, articleTitle, fullUrl) {
-        var articleView   = document.getElementById('fd-article-view');
-        var articleContent= document.getElementById('fd-article-content');
-        var openBtn       = document.getElementById('fd-article-open-btn');
-        var results       = document.getElementById('fd-results');
+        var articleView    = document.getElementById('fd-article-view');
+        var articleContent = document.getElementById('fd-article-content');
+        var openBtn        = document.getElementById('fd-article-open-btn');
 
-        // Hide article list, show article view
         document.getElementById('fd-articles').style.display = 'none';
         document.getElementById('fd-status').style.display   = 'none';
+        document.getElementById('fd-contact-confirm').style.display = 'none';
         articleView.style.display = 'flex';
 
         articleContent.innerHTML = '<p style="color:#999;text-align:center;padding:20px;">Loading...</p>';
 
-        // Wire up open full article button
         openBtn.onclick = function() {
             window.open(fullUrl, '_blank');
         };
 
         getArticle(articleId, function(err, data) {
             if (err || !data) {
-                articleContent.innerHTML = '<p style="color:#c00;">Could not load article. <a href="' + fullUrl + '" target="_blank">Open in Freshdesk</a></p>';
+                articleContent.innerHTML = '<p style="color:#c00;">Could not load article. ' +
+                    '<a href="' + fullUrl + '" target="_blank">Open in Freshdesk</a></p>';
                 return;
             }
             articleContent.innerHTML = data.description || '<p>No content available.</p>';
@@ -370,66 +358,45 @@ define(['core/config'], function(mdlConfig) {
     }
 
     // -------------------------------------------------------------------------
-    // Show contact form
+    // Open contact form in new tab
     // -------------------------------------------------------------------------
-    function showContactForm() {
-        var formPanel  = document.getElementById('fd-form-panel');
-        var formIframe = document.getElementById('fd-form-iframe');
-        var articles   = document.getElementById('fd-articles');
-        var status     = document.getElementById('fd-status');
-        var contactBar = document.getElementById('fd-contact-bar');
-        var articleView= document.getElementById('fd-article-view');
-        var searchPanel= document.getElementById('fd-search-panel');
-
-        // Hide everything else, show form
-        articles.style.display    = 'none';
-        status.style.display      = 'none';
-        articleView.style.display = 'none';
-        contactBar.style.display  = 'none';
-        searchPanel.style.display = 'none';
-        formPanel.style.display   = 'flex';
-
-        // Only set src if not already loaded
-        if (!formIframe.src || formIframe.src === window.location.href) {
-            formIframe.src = cfg.ticketFormUrl;
-        }
+    function openContactForm() {
+        window.open(cfg.ticketFormUrl, '_blank');
+        document.getElementById('fd-contact-confirm').style.display = 'block';
     }
 
     // -------------------------------------------------------------------------
     // Reset modal to default state
     // -------------------------------------------------------------------------
     function resetModal() {
-        document.getElementById('fd-articles').style.display    = '';
-        document.getElementById('fd-articles').innerHTML        = '';
-        document.getElementById('fd-status').style.display      = '';
-        document.getElementById('fd-status').textContent        = 'Search for help articles above, or contact support below.';
-        document.getElementById('fd-article-view').style.display= 'none';
-        document.getElementById('fd-form-panel').style.display  = 'none';
-        document.getElementById('fd-contact-bar').style.display = '';
-        document.getElementById('fd-search-panel').style.display= '';
-        document.getElementById('fd-search-input').value        = '';
-        document.getElementById('fd-form-iframe').src           = '';
+        document.getElementById('fd-articles').style.display         = '';
+        document.getElementById('fd-articles').innerHTML              = '';
+        document.getElementById('fd-status').style.display            = '';
+        document.getElementById('fd-status').textContent              =
+            'Search for help articles above, or contact support below.';
+        document.getElementById('fd-article-view').style.display     = 'none';
+        document.getElementById('fd-contact-confirm').style.display  = 'none';
+        document.getElementById('fd-contact-bar').style.display      = '';
+        document.getElementById('fd-search-panel').style.display     = '';
+        document.getElementById('fd-search-input').value             = '';
     }
 
     // -------------------------------------------------------------------------
     // Wire up events
     // -------------------------------------------------------------------------
     function wireEvents(overlay) {
-        var helpBtn    = document.getElementById('fd-help-btn');
-        var closeBtn   = document.getElementById('fd-modal-close');
-        var searchBtn  = document.getElementById('fd-search-btn');
-        var searchInput= document.getElementById('fd-search-input');
-        var contactBtn = document.getElementById('fd-contact-btn');
-        var formBackBtn= document.getElementById('fd-form-back-btn');
-        var artBackBtn = document.getElementById('fd-article-back-btn');
+        var helpBtn     = document.getElementById('fd-help-btn');
+        var closeBtn    = document.getElementById('fd-modal-close');
+        var searchBtn   = document.getElementById('fd-search-btn');
+        var searchInput = document.getElementById('fd-search-input');
+        var contactBtn  = document.getElementById('fd-contact-btn');
+        var artBackBtn  = document.getElementById('fd-article-back-btn');
 
-        // Open modal
         helpBtn.addEventListener('click', function() {
             overlay.style.display = 'block';
             searchInput.focus();
         });
 
-        // Close modal
         function closeModal() {
             overlay.style.display = 'none';
             resetModal();
@@ -438,23 +405,19 @@ define(['core/config'], function(mdlConfig) {
         overlay.addEventListener('click', function(e) {
             if (e.target === overlay) { closeModal(); }
         });
-
-        // Close on Escape
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && overlay.style.display === 'block') {
-                closeModal();
-            }
+            if (e.key === 'Escape' && overlay.style.display === 'block') { closeModal(); }
         });
 
-        // Search
         function doSearch() {
             var term = searchInput.value.trim();
             if (!term) { return; }
             var status = document.getElementById('fd-status');
-            status.style.display  = '';
-            status.textContent    = 'Searching...';
+            status.style.display = '';
+            status.textContent   = 'Searching...';
             document.getElementById('fd-articles').innerHTML = '';
             document.getElementById('fd-article-view').style.display = 'none';
+            document.getElementById('fd-contact-confirm').style.display = 'none';
 
             searchArticles(term, function(err, results) {
                 if (err) {
@@ -470,19 +433,8 @@ define(['core/config'], function(mdlConfig) {
             if (e.key === 'Enter') { doSearch(); }
         });
 
-        // Contact support
-        contactBtn.addEventListener('click', showContactForm);
+        contactBtn.addEventListener('click', openContactForm);
 
-        // Back from form
-        formBackBtn.addEventListener('click', function() {
-            document.getElementById('fd-form-panel').style.display   = 'none';
-            document.getElementById('fd-articles').style.display     = '';
-            document.getElementById('fd-status').style.display       = '';
-            document.getElementById('fd-contact-bar').style.display  = '';
-            document.getElementById('fd-search-panel').style.display = '';
-        });
-
-        // Back from article
         artBackBtn.addEventListener('click', function() {
             document.getElementById('fd-article-view').style.display = 'none';
             document.getElementById('fd-articles').style.display     = '';
@@ -495,7 +447,6 @@ define(['core/config'], function(mdlConfig) {
     // -------------------------------------------------------------------------
     return {
         init: function() {
-            // Read config passed from PHP
             cfg = window.local_freshdeskwidget_config || {};
 
             if (!cfg.portalUrl || !cfg.apiKey) {
