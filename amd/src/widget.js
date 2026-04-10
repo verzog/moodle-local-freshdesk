@@ -469,7 +469,8 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
                 document.getElementById('fd-contact-success').style.display = 'block';
             }
             return result;
-        }).catch(function() {
+        }).catch(function(err) {
+            window.console.error('local_freshdeskwidget: ticket submission failed', err);
             errorEl.textContent   = 'Failed to submit ticket. Please try again.';
             errorEl.style.display = 'block';
             submitBtn.disabled    = false;
