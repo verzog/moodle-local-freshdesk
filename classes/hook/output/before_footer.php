@@ -65,14 +65,14 @@ class before_footer {
         $rolelabel = $isstaff ? 'Staff' : 'Student';
 
         // Resolve user details — empty strings for guests.
-        $useremail  = $isloggedin ? $USER->email      : '';
-        $username   = $isloggedin ? fullname($USER)   : '';
+        $useremail  = $isloggedin ? $USER->email : '';
+        $username   = $isloggedin ? fullname($USER) : '';
         $currenturl = $PAGE->url->out(false);
         $coursename = $courseid > 1 ? format_string($COURSE->fullname) : '';
 
         // Load Freshdesk settings from plugin config.
-        $portalurl   = rtrim((string) ($config->portal_url  ?? 'https://thefeaturecreep.freshdesk.com'), '/');
-        $apikey      = (string) ($config->api_key     ?? '');
+        $portalurl   = rtrim((string) ($config->portal_url ?? 'https://thefeaturecreep.freshdesk.com'), '/');
+        $apikey      = (string) ($config->api_key ?? '');
         $widgetcolor = (string) ($config->widget_color ?? '#006B6B');
 
         // Compose a pre-filled subject that gives agents instant context.
