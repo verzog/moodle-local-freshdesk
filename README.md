@@ -1,2 +1,2 @@
-# moodle-local-freshdesk
+# moodle-local_freshdesk
 freshdesk placeholder
