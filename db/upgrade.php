@@ -22,15 +22,13 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-declare(strict_types=1);
-
 /**
  * Runs upgrade steps between plugin versions.
  *
  * @param int $oldversion The version we are upgrading from.
  * @return bool
  */
-function xmldb_local_freshdeskwidget_upgrade(int $oldversion): bool {
+function xmldb_local_freshdeskwidget_upgrade($oldversion): bool {
 
     if ($oldversion < 2026041002) {
         // Ticket form URL now pre-fills subject and description with course/role context.
