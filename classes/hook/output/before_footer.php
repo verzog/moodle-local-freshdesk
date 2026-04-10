@@ -64,18 +64,18 @@ class before_footer {
         $isstaff   = has_capability('moodle/course:manageactivities', $context);
         $rolelabel = $isstaff ? 'Staff' : 'Student';
 
-        // User details — empty strings for guests.
+        // User details are empty strings for guests.
         $useremail  = $isloggedin ? $USER->email : '';
         $username   = $isloggedin ? fullname($USER) : '';
         $currenturl = $PAGE->url->out(false);
         $coursename = ($COURSE->id > 1) ? format_string($COURSE->fullname) : '';
 
-        // Freshdesk settings with typed defaults.
+        // Load Freshdesk settings from plugin config.
         $portalurl   = rtrim((string) ($config->portal_url ?? 'https://thefeaturecreep.freshdesk.com'), '/');
         $apikey      = (string) ($config->api_key ?? '');
         $widgetcolor = (string) ($config->widget_color ?? '#006B6B');
 
-        // Build pre-filled ticket form URL.
+        // Build a pre-filled ticket form URL with user context.
         $ticketformurl = $portalurl . '/support/tickets/new?' . http_build_query([
             'url'   => $currenturl,
             'name'  => $username,
