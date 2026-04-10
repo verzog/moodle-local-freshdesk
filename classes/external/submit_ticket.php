@@ -76,7 +76,9 @@ class submit_ticket extends external_api {
         string $coursename,
         string $userrole
     ): array {
-        global $USER;
+        global $CFG, $USER;
+
+        require_once($CFG->libdir . '/filelib.php');
 
         $params = self::validate_parameters(self::execute_parameters(), [
             'subject'    => $subject,
