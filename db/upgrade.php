@@ -86,5 +86,12 @@ function xmldb_local_freshdeskwidget_upgrade($oldversion): bool {
         upgrade_plugin_savepoint(true, 2026041009, 'local', 'freshdeskwidget');
     }
 
+    if ($oldversion < 2026041010) {
+        // Fix: add required status (2=Open) and priority (1=Low) fields to Freshdesk
+        // ticket payload. Without these the API returns HTTP 400 validation failed.
+        // No database changes required.
+        upgrade_plugin_savepoint(true, 2026041010, 'local', 'freshdeskwidget');
+    }
+
     return true;
 }

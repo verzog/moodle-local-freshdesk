@@ -27,7 +27,7 @@ declare(strict_types=1);
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_freshdeskwidget';
-$plugin->version   = 2026041009;
+$plugin->version   = 2026041010;
 $plugin->requires  = 2024100700; // Requires Moodle 4.5 or later.
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.3.6';
+$plugin->release   = '1.3.7';

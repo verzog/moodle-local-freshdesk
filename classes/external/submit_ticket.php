@@ -121,6 +121,8 @@ class submit_ticket extends external_api {
             'subject'     => $params['subject'],
             'description' => implode("\n", $descparts),
             'source'      => 2,
+            'status'      => 2,
+            'priority'    => 1,
         ]);
 
         $curl = new \curl();
