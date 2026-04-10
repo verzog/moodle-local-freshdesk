@@ -43,5 +43,12 @@ function xmldb_local_freshdeskwidget_upgrade($oldversion): bool {
         upgrade_plugin_savepoint(true, 2026041003, 'local', 'freshdeskwidget');
     }
 
+    if ($oldversion < 2026041004) {
+        // Fix: removed declare(strict_types=1) from db/upgrade.php and db/install.php.
+        // Moodle passes oldversion as a string; strict types caused a silent TypeError.
+        // No database changes required.
+        upgrade_plugin_savepoint(true, 2026041004, 'local', 'freshdeskwidget');
+    }
+
     return true;
 }
