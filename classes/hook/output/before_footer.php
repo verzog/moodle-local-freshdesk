@@ -33,7 +33,6 @@ use core\hook\output\before_footer_html_generation;
  * Injects Freshdesk widget configuration and AMD module into every Moodle page.
  */
 class before_footer {
-
     /**
      * Callback for before_footer_html_generation hook.
      *
@@ -59,27 +58,36 @@ class before_footer {
             return;
         }
 
-        // Determine user role label based on course capability.
-        $context   = course_context::instance((int) $COURSE->id);
+        // Determine role from course capability (falls back to site context on non-course pages).
+        $courseid  = (int) $COURSE->id;
+        $context   = $courseid > 1 ? course_context::instance($courseid) : \core\context\system::instance();
         $isstaff   = has_capability('moodle/course:manageactivities', $context);
         $rolelabel = $isstaff ? 'Staff' : 'Student';
 
-        // User details are empty strings for guests.
-        $useremail  = $isloggedin ? $USER->email : '';
-        $username   = $isloggedin ? fullname($USER) : '';
+        // Resolve user details — empty strings for guests.
+        $useremail  = $isloggedin ? $USER->email      : '';
+        $username   = $isloggedin ? fullname($USER)   : '';
         $currenturl = $PAGE->url->out(false);
-        $coursename = ($COURSE->id > 1) ? format_string($COURSE->fullname) : '';
+        $coursename = $courseid > 1 ? format_string($COURSE->fullname) : '';
 
         // Load Freshdesk settings from plugin config.
-        $portalurl   = rtrim((string) ($config->portal_url ?? 'https://thefeaturecreep.freshdesk.com'), '/');
-        $apikey      = (string) ($config->api_key ?? '');
+        $portalurl   = rtrim((string) ($config->portal_url  ?? 'https://thefeaturecreep.freshdesk.com'), '/');
+        $apikey      = (string) ($config->api_key     ?? '');
         $widgetcolor = (string) ($config->widget_color ?? '#006B6B');
 
-        // Build a pre-filled ticket form URL with user context.
+        // Compose a pre-filled subject that gives agents instant context.
+        if ($coursename !== '') {
+            $subject = 'Support request - ' . $coursename . ' [' . $rolelabel . ']';
+        } else {
+            $subject = 'Support request [' . $rolelabel . ']';
+        }
+
+        // Build ticket form URL — pre-fills name, email, subject, and source URL.
         $ticketformurl = $portalurl . '/support/tickets/new?' . http_build_query([
-            'url'   => $currenturl,
-            'name'  => $username,
-            'email' => $useremail,
+            'email'       => $useremail,
+            'name'        => $username,
+            'subject'     => $subject,
+            'description' => 'Page: ' . $currenturl,
         ]);
 
         $PAGE->requires->data_for_js('local_freshdeskwidget_config', [

@@ -24,8 +24,6 @@
 
 declare(strict_types=1);
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Runs upgrade steps between plugin versions.
  *
@@ -34,10 +32,11 @@ defined('MOODLE_INTERNAL') || die();
  */
 function xmldb_local_freshdeskwidget_upgrade(int $oldversion): bool {
 
-    // Future upgrade steps should be added here following this pattern.
-    // if ($oldversion < 2026050100) {
-    //     upgrade_plugin_savepoint(true, 2026050100, 'local', 'freshdeskwidget');
-    // }
+    if ($oldversion < 2026041002) {
+        // Ticket form URL now pre-fills subject and description with course/role context.
+        // No database changes required — hook re-registration is automatic on upgrade.
+        upgrade_plugin_savepoint(true, 2026041002, 'local', 'freshdeskwidget');
+    }
 
     return true;
 }
