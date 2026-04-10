@@ -22,10 +22,12 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+declare(strict_types=1);
+
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_freshdeskwidget';
-$plugin->version   = 2026041000;
-$plugin->requires  = 2022041900; // Requires Moodle 4.0 or later.
-$plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '1.0.0';
+$plugin->version   = 2026041001;
+$plugin->requires  = 2024100700; // Requires Moodle 4.5 or later.
+$plugin->maturity  = MATURITY_STABLE;
+$plugin->release   = '1.1.0';
