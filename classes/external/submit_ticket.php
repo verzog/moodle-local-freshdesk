@@ -45,7 +45,7 @@ class submit_ticket extends external_api {
         return new external_function_parameters([
             'subject'    => new external_value(PARAM_TEXT, 'Ticket subject'),
             'message'    => new external_value(PARAM_TEXT, 'Ticket message body'),
-            'currenturl' => new external_value(PARAM_URL, 'Current page URL'),
+            'currenturl' => new external_value(PARAM_TEXT, 'Current page URL'),
             'coursename' => new external_value(PARAM_TEXT, 'Current course name', VALUE_DEFAULT, ''),
             'userrole'   => new external_value(PARAM_TEXT, 'User role label', VALUE_DEFAULT, ''),
         ]);
