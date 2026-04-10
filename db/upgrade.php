@@ -66,5 +66,12 @@ function xmldb_local_freshdeskwidget_upgrade($oldversion): bool {
         upgrade_plugin_savepoint(true, 2026041006, 'local', 'freshdeskwidget');
     }
 
+    if ($oldversion < 2026041007) {
+        // Fix: require_once filelib.php before using \curl in external function.
+        // The AJAX service context does not auto-load lib/filelib.php.
+        // No database changes required.
+        upgrade_plugin_savepoint(true, 2026041007, 'local', 'freshdeskwidget');
+    }
+
     return true;
 }
