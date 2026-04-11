@@ -429,20 +429,63 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
     }
 
     // -------------------------------------------------------------------------
-    // Extract a search term from course name or URL path
+    // Extract search terms from course name AND URL activity type (both if available)
     // -------------------------------------------------------------------------
-    function getSearchTerm() {
-        var term = cfg.courseName || '';
-        if (!term && cfg.currentUrl) {
+    function getSearchTerms() {
+        var terms = [];
+        if (cfg.courseName) {
+            terms.push(cfg.courseName);
+        }
+        if (cfg.currentUrl) {
             try {
                 var parts = new URL(cfg.currentUrl).pathname.split('/').filter(Boolean);
                 var modIdx = parts.indexOf('mod');
-                term = modIdx !== -1 && parts[modIdx + 1] ? parts[modIdx + 1] : parts[0] || '';
-            } catch(e) {
-                term = '';
-            }
+                if (modIdx !== -1 && parts[modIdx + 1]) {
+                    var activityType = parts[modIdx + 1];
+                    if (terms.indexOf(activityType) === -1) {
+                        terms.push(activityType);
+                    }
+                } else if (terms.length === 0 && parts[0]) {
+                    terms.push(parts[0]);
+                }
+            } catch(e) {}
         }
-        return term;
+        return terms;
+    }
+
+    // -------------------------------------------------------------------------
+    // Search with multiple terms in parallel, merge and deduplicate results
+    // -------------------------------------------------------------------------
+    function searchArticlesMulti(terms, callback) {
+        if (!terms || terms.length === 0) {
+            callback(null, []);
+            return;
+        }
+        if (terms.length === 1) {
+            searchArticles(terms[0], callback);
+            return;
+        }
+        var merged    = [];
+        var seenIds   = {};
+        var remaining = terms.length;
+        var firstErr  = null;
+        terms.forEach(function(term) {
+            searchArticles(term, function(err, results) {
+                if (err && !firstErr) { firstErr = err; }
+                if (results) {
+                    results.forEach(function(article) {
+                        if (!seenIds[article.id]) {
+                            seenIds[article.id] = true;
+                            merged.push(article);
+                        }
+                    });
+                }
+                remaining--;
+                if (remaining === 0) {
+                    callback(merged.length === 0 ? firstErr : null, merged);
+                }
+            });
+        });
     }
 
     // -------------------------------------------------------------------------
@@ -510,8 +553,8 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
     // -------------------------------------------------------------------------
     function loadSuggestedArticles() {
         if (!cfg.apiKey) { return; }
-        var term = getSearchTerm();
-        if (!term) { return; }
+        var terms = getSearchTerms();
+        if (!terms.length) { return; }
 
         var section     = document.getElementById('fd-suggest-section');
         var articlesDiv = document.getElementById('fd-suggest-articles');
@@ -519,7 +562,7 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
         section.style.display = 'block';
         articlesDiv.innerHTML = '<p style="color:#999;font-size:12px;margin:0;">Loading suggestions...</p>';
 
-        searchArticles(term, function(err, results) {
+        searchArticlesMulti(terms, function(err, results) {
             if (err || !results || results.length === 0) {
                 section.style.display = 'none';
                 return;
@@ -547,15 +590,13 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
     // -------------------------------------------------------------------------
     function loadPageSuggestions() {
         if (!cfg.apiKey) { return; }
-        var term = getSearchTerm();
-        if (!term) { return; }
+        var terms = getSearchTerms();
+        if (!terms.length) { return; }
 
-        var status      = document.getElementById('fd-status');
-        var articlesDiv = document.getElementById('fd-articles');
-
+        var status = document.getElementById('fd-status');
         status.textContent = 'Loading suggestions\u2026';
 
-        searchArticles(term, function(err, results) {
+        searchArticlesMulti(terms, function(err, results) {
             if (err || !results || results.length === 0) {
                 status.textContent = 'Search for help articles above, or contact support below.';
                 return;
