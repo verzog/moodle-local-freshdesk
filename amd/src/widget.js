@@ -429,6 +429,23 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
     }
 
     // -------------------------------------------------------------------------
+    // Extract a search term from course name or URL path
+    // -------------------------------------------------------------------------
+    function getSearchTerm() {
+        var term = cfg.courseName || '';
+        if (!term && cfg.currentUrl) {
+            try {
+                var parts = new URL(cfg.currentUrl).pathname.split('/').filter(Boolean);
+                var modIdx = parts.indexOf('mod');
+                term = modIdx !== -1 && parts[modIdx + 1] ? parts[modIdx + 1] : parts[0] || '';
+            } catch(e) {
+                term = '';
+            }
+        }
+        return term;
+    }
+
+    // -------------------------------------------------------------------------
     // Show native contact form panel
     // -------------------------------------------------------------------------
     function showContactForm() {
@@ -438,10 +455,31 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
         document.getElementById('fd-articles').style.display      = 'none';
         document.getElementById('fd-article-view').style.display  = 'none';
 
-        // Show who the ticket will be submitted as.
+        // Show who the ticket will be submitted as, with username and profile link.
         var userInfoEl = document.getElementById('fd-contact-userinfo');
+        userInfoEl.innerHTML = '';
         if (cfg.userName) {
-            userInfoEl.innerHTML = 'Submitting as <strong>' + cfg.userName + '</strong>';
+            var nameText = document.createTextNode('Submitting as ');
+            var nameStrong = document.createElement('strong');
+            nameStrong.textContent = cfg.userName;
+            if (cfg.userUsername) {
+                nameStrong.textContent += ' (' + cfg.userUsername + ')';
+            }
+            userInfoEl.appendChild(nameText);
+            userInfoEl.appendChild(nameStrong);
+
+            if (cfg.userProfileUrl) {
+                userInfoEl.appendChild(document.createTextNode('\u00a0\u00a0'));
+                var profileLink = document.createElement('a');
+                profileLink.href             = cfg.userProfileUrl;
+                profileLink.target           = '_blank';
+                profileLink.rel              = 'noopener noreferrer';
+                profileLink.textContent      = 'View profile \u2197';
+                profileLink.style.fontSize   = '12px';
+                profileLink.style.color      = cfg.widgetColor;
+                profileLink.style.fontWeight = 'normal';
+                userInfoEl.appendChild(profileLink);
+            }
             userInfoEl.style.display = '';
         } else {
             userInfoEl.style.display = 'none';
@@ -468,29 +506,18 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
     }
 
     // -------------------------------------------------------------------------
-    // Auto-suggest articles when contact form opens
+    // Auto-suggest articles in the contact form panel (inline, new-tab links)
     // -------------------------------------------------------------------------
     function loadSuggestedArticles() {
         if (!cfg.apiKey) { return; }
-
-        // Build search term: prefer course name, fall back to URL path segment.
-        var term = cfg.courseName || '';
-        if (!term && cfg.currentUrl) {
-            try {
-                var parts = new URL(cfg.currentUrl).pathname.split('/').filter(Boolean);
-                var modIdx = parts.indexOf('mod');
-                term = modIdx !== -1 && parts[modIdx + 1] ? parts[modIdx + 1] : parts[0] || '';
-            } catch(e) {
-                term = '';
-            }
-        }
+        var term = getSearchTerm();
         if (!term) { return; }
 
         var section     = document.getElementById('fd-suggest-section');
         var articlesDiv = document.getElementById('fd-suggest-articles');
 
-        section.style.display  = 'block';
-        articlesDiv.innerHTML  = '<p style="color:#999;font-size:12px;margin:0;">Loading suggestions...</p>';
+        section.style.display = 'block';
+        articlesDiv.innerHTML = '<p style="color:#999;font-size:12px;margin:0;">Loading suggestions...</p>';
 
         searchArticles(term, function(err, results) {
             if (err || !results || results.length === 0) {
@@ -512,6 +539,29 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
                 item.appendChild(link);
                 articlesDiv.appendChild(item);
             });
+        });
+    }
+
+    // -------------------------------------------------------------------------
+    // Auto-suggest articles on the main modal home screen
+    // -------------------------------------------------------------------------
+    function loadPageSuggestions() {
+        if (!cfg.apiKey) { return; }
+        var term = getSearchTerm();
+        if (!term) { return; }
+
+        var status      = document.getElementById('fd-status');
+        var articlesDiv = document.getElementById('fd-articles');
+
+        status.textContent = 'Loading suggestions\u2026';
+
+        searchArticles(term, function(err, results) {
+            if (err || !results || results.length === 0) {
+                status.textContent = 'Search for help articles above, or contact support below.';
+                return;
+            }
+            status.textContent = 'Suggested for this page:';
+            renderArticles(results);
         });
     }
 
@@ -608,6 +658,7 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
         helpBtn.addEventListener('click', function() {
             overlay.style.display = 'block';
             searchInput.focus();
+            loadPageSuggestions();
         });
 
         function closeModal() {

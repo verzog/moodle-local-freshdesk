@@ -70,8 +70,12 @@ class before_footer {
         $rolelabel = $isstaff ? 'Staff' : 'Student';
 
         // Resolve user details, empty strings for guests.
-        $useremail  = $isloggedin ? $USER->email : '';
-        $username   = $isloggedin ? fullname($USER) : '';
+        $useremail      = $isloggedin ? $USER->email : '';
+        $username       = $isloggedin ? fullname($USER) : '';
+        $userusername   = $isloggedin ? $USER->username : '';
+        $userprofileurl = $isloggedin
+            ? (new \moodle_url('/user/profile.php', ['id' => $USER->id]))->out(false)
+            : '';
         $currenturl = $PAGE->url->out(false);
         $coursename = $courseid > 1 ? format_string($COURSE->fullname) : '';
 
@@ -81,15 +85,17 @@ class before_footer {
         $widgetcolor = (string) ($config->widget_color ?? '#006B6B');
 
         $PAGE->requires->data_for_js('local_freshdeskwidget_config', [
-            'portalUrl'   => $portalurl,
-            'apiKey'      => $apikey,
-            'userEmail'   => $useremail,
-            'userName'    => $username,
-            'currentUrl'  => $currenturl,
-            'courseName'  => $coursename,
-            'userRole'    => $rolelabel,
-            'isLoggedIn'  => $isloggedin,
-            'widgetColor' => $widgetcolor,
+            'portalUrl'      => $portalurl,
+            'apiKey'         => $apikey,
+            'userEmail'      => $useremail,
+            'userName'       => $username,
+            'userUsername'   => $userusername,
+            'userProfileUrl' => $userprofileurl,
+            'currentUrl'     => $currenturl,
+            'courseName'     => $coursename,
+            'userRole'       => $rolelabel,
+            'isLoggedIn'     => $isloggedin,
+            'widgetColor'    => $widgetcolor,
         ]);
 
         $PAGE->requires->js_call_amd('local_freshdeskwidget/widget', 'init');

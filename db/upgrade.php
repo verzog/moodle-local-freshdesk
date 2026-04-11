@@ -100,5 +100,12 @@ function xmldb_local_freshdeskwidget_upgrade($oldversion): bool {
         upgrade_plugin_savepoint(true, 2026041011, 'local', 'freshdeskwidget');
     }
 
+    if ($oldversion < 2026041012) {
+        // Enhancement: auto-suggested articles now also appear on the modal home screen
+        // when the widget is opened, using the course name or page URL as the search term.
+        // No database changes required.
+        upgrade_plugin_savepoint(true, 2026041012, 'local', 'freshdeskwidget');
+    }
+
     return true;
 }
