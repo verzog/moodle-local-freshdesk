@@ -144,7 +144,28 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
             '}',
             '#fd-contact-fields {',
             '  padding: 16px; display: flex; flex-direction: column; gap: 12px;',
+            '  overflow-y: auto;',
             '}',
+            '#fd-contact-userinfo {',
+            '  font-size: 13px; color: #555; padding-bottom: 10px;',
+            '  border-bottom: 1px solid #eee;',
+            '}',
+            '#fd-contact-userinfo strong { color: #333; }',
+            '#fd-suggest-section {',
+            '  background: #f5f8ff; border: 1px solid #dde8ff;',
+            '  border-radius: 6px; padding: 10px 12px;',
+            '}',
+            '#fd-suggest-heading {',
+            '  font-size: 11px; font-weight: 700; color: #666;',
+            '  text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 8px 0;',
+            '}',
+            '.fd-suggest-item { padding: 5px 0; border-bottom: 1px solid #e0e8ff; }',
+            '.fd-suggest-item:last-child { border-bottom: none; }',
+            '.fd-suggest-link {',
+            '  font-size: 13px; color: ' + cfg.widgetColor + ';',
+            '  cursor: pointer; text-decoration: none; display: block;',
+            '}',
+            '.fd-suggest-link:hover { text-decoration: underline; }',
             '#fd-contact-fields label {',
             '  font-size: 13px; color: #333; font-weight: 600;',
             '  display: block; margin-bottom: 4px;',
@@ -154,7 +175,7 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
             '  border: 1px solid #ccc; border-radius: 6px;',
             '  font-size: 14px; font-family: inherit;',
             '}',
-            '#fd-ticket-message { height: 120px; resize: vertical; }',
+            '#fd-ticket-message { height: 110px; resize: vertical; }',
             '#fd-contact-submit {',
             '  padding: 9px 20px; background: ' + cfg.widgetColor + '; color: #fff;',
             '  border: none; border-radius: 6px; font-size: 14px;',
@@ -240,6 +261,11 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
             '      <p id="fd-contact-success-sub">We\'ll reply to your registered email address.</p>',
             '    </div>',
             '    <div id="fd-contact-fields">',
+            '      <div id="fd-contact-userinfo"></div>',
+            '      <div id="fd-suggest-section" style="display:none;">',
+            '        <p id="fd-suggest-heading">Related articles — did you find what you need?</p>',
+            '        <div id="fd-suggest-articles"></div>',
+            '      </div>',
             '      <div>',
             '        <label for="fd-ticket-subject">Subject</label>',
             '        <input id="fd-ticket-subject" type="text" maxlength="255" />',
@@ -412,6 +438,15 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
         document.getElementById('fd-articles').style.display      = 'none';
         document.getElementById('fd-article-view').style.display  = 'none';
 
+        // Show who the ticket will be submitted as.
+        var userInfoEl = document.getElementById('fd-contact-userinfo');
+        if (cfg.userName) {
+            userInfoEl.innerHTML = 'Submitting as <strong>' + cfg.userName + '</strong>';
+            userInfoEl.style.display = '';
+        } else {
+            userInfoEl.style.display = 'none';
+        }
+
         // Pre-fill subject on first open.
         var subjectInput = document.getElementById('fd-ticket-subject');
         if (subjectInput && !subjectInput.value) {
@@ -427,6 +462,57 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
 
         document.getElementById('fd-contact-form').style.display = 'flex';
         document.getElementById('fd-ticket-message').focus();
+
+        // Auto-suggest articles based on current context.
+        loadSuggestedArticles();
+    }
+
+    // -------------------------------------------------------------------------
+    // Auto-suggest articles when contact form opens
+    // -------------------------------------------------------------------------
+    function loadSuggestedArticles() {
+        if (!cfg.apiKey) { return; }
+
+        // Build search term: prefer course name, fall back to URL path segment.
+        var term = cfg.courseName || '';
+        if (!term && cfg.currentUrl) {
+            try {
+                var parts = new URL(cfg.currentUrl).pathname.split('/').filter(Boolean);
+                var modIdx = parts.indexOf('mod');
+                term = modIdx !== -1 && parts[modIdx + 1] ? parts[modIdx + 1] : parts[0] || '';
+            } catch(e) {
+                term = '';
+            }
+        }
+        if (!term) { return; }
+
+        var section     = document.getElementById('fd-suggest-section');
+        var articlesDiv = document.getElementById('fd-suggest-articles');
+
+        section.style.display  = 'block';
+        articlesDiv.innerHTML  = '<p style="color:#999;font-size:12px;margin:0;">Loading suggestions...</p>';
+
+        searchArticles(term, function(err, results) {
+            if (err || !results || results.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+            articlesDiv.innerHTML = '';
+            results.slice(0, 3).forEach(function(article) {
+                var item = document.createElement('div');
+                item.className = 'fd-suggest-item';
+
+                var link = document.createElement('a');
+                link.className   = 'fd-suggest-link';
+                link.textContent = article.title || 'Untitled';
+                link.href        = cfg.portalUrl + '/support/solutions/articles/' + article.id;
+                link.target      = '_blank';
+                link.rel         = 'noopener noreferrer';
+
+                item.appendChild(link);
+                articlesDiv.appendChild(item);
+            });
+        });
     }
 
     // -------------------------------------------------------------------------
@@ -494,11 +580,13 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
         document.getElementById('fd-search-input').value            = '';
 
         // Reset contact form state.
-        document.getElementById('fd-ticket-subject').value          = '';
-        document.getElementById('fd-ticket-message').value          = '';
-        document.getElementById('fd-contact-error').style.display   = 'none';
-        document.getElementById('fd-contact-fields').style.display  = '';
-        document.getElementById('fd-contact-success').style.display = 'none';
+        document.getElementById('fd-ticket-subject').value           = '';
+        document.getElementById('fd-ticket-message').value           = '';
+        document.getElementById('fd-contact-error').style.display    = 'none';
+        document.getElementById('fd-contact-fields').style.display   = '';
+        document.getElementById('fd-contact-success').style.display  = 'none';
+        document.getElementById('fd-suggest-section').style.display  = 'none';
+        document.getElementById('fd-suggest-articles').innerHTML     = '';
         var submitBtn = document.getElementById('fd-contact-submit');
         submitBtn.disabled    = false;
         submitBtn.textContent = 'Send';

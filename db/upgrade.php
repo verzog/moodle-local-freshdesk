@@ -93,5 +93,12 @@ function xmldb_local_freshdeskwidget_upgrade($oldversion): bool {
         upgrade_plugin_savepoint(true, 2026041010, 'local', 'freshdeskwidget');
     }
 
+    if ($oldversion < 2026041011) {
+        // Enhancement: contact form now shows submitting user name and auto-suggests
+        // related knowledge base articles based on current course or page URL.
+        // No database changes required.
+        upgrade_plugin_savepoint(true, 2026041011, 'local', 'freshdeskwidget');
+    }
+
     return true;
 }
