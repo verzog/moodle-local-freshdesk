@@ -113,6 +113,12 @@ class submit_ticket extends external_api {
                 htmlspecialchars($params['userrole'], ENT_QUOTES) . '</p>';
         }
 
+        $descparts[] = '<p><strong>Moodle username:</strong> ' .
+            htmlspecialchars($USER->username, ENT_QUOTES) . '</p>';
+        $profileurl  = (new \moodle_url('/user/profile.php', ['id' => $USER->id]))->out(false);
+        $descparts[] = '<p><strong>Profile:</strong> <a href="' .
+            htmlspecialchars($profileurl, ENT_QUOTES) . '">' .
+            htmlspecialchars($profileurl, ENT_QUOTES) . '</a></p>';
         $descparts[] = '<p><strong>Moodle user ID:</strong> ' . (int) $USER->id . '</p>';
 
         $payload = json_encode([

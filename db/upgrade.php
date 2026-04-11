@@ -107,5 +107,12 @@ function xmldb_local_freshdeskwidget_upgrade($oldversion): bool {
         upgrade_plugin_savepoint(true, 2026041012, 'local', 'freshdeskwidget');
     }
 
+    if ($oldversion < 2026041013) {
+        // Enhancement: Freshdesk ticket description now includes the submitting user's
+        // Moodle username and a direct profile URL, resolved server-side.
+        // No database changes required.
+        upgrade_plugin_savepoint(true, 2026041013, 'local', 'freshdeskwidget');
+    }
+
     return true;
 }
