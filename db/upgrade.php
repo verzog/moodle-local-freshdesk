@@ -114,5 +114,13 @@ function xmldb_local_freshdeskwidget_upgrade($oldversion): bool {
         upgrade_plugin_savepoint(true, 2026041013, 'local', 'freshdeskwidget');
     }
 
+    if ($oldversion < 2026041014) {
+        // Enhancement: article suggestions now search both the course name and the
+        // current activity type (e.g. quiz, assign) in parallel and merge results,
+        // increasing the likelihood of relevant articles appearing.
+        // No database changes required.
+        upgrade_plugin_savepoint(true, 2026041014, 'local', 'freshdeskwidget');
+    }
+
     return true;
 }
