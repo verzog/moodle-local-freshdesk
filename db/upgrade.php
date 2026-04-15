@@ -122,5 +122,15 @@ function xmldb_local_freshdeskwidget_upgrade($oldversion): bool {
         upgrade_plugin_savepoint(true, 2026041014, 'local', 'freshdeskwidget');
     }
 
+    if ($oldversion < 2026041015) {
+        // Feature: screenshot attachment in the contact form (file upload or clipboard
+        // paste). Screenshots are compressed to JPEG client-side and sent as a
+        // multipart attachment via the server-side Freshdesk API proxy.
+        // Coding standards: added declare(strict_types=1) to db/install.php;
+        // added JSDoc module block and init docblock to amd/src/widget.js.
+        // No database changes required.
+        upgrade_plugin_savepoint(true, 2026041015, 'local', 'freshdeskwidget');
+    }
+
     return true;
 }

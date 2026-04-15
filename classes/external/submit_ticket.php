@@ -52,6 +52,12 @@ class submit_ticket extends external_api {
             'currenturl' => new external_value(PARAM_TEXT, 'Current page URL'),
             'coursename' => new external_value(PARAM_TEXT, 'Current course name', VALUE_DEFAULT, ''),
             'userrole'   => new external_value(PARAM_TEXT, 'User role label', VALUE_DEFAULT, ''),
+            'screenshot' => new external_value(
+                PARAM_RAW,
+                'Base64-encoded JPEG screenshot (optional)',
+                VALUE_DEFAULT,
+                ''
+            ),
         ]);
     }
 
@@ -60,13 +66,15 @@ class submit_ticket extends external_api {
      *
      * User identity (name and email) is sourced from the Moodle session, not
      * from client-supplied values, to prevent spoofing. The API key never
-     * leaves the server.
+     * leaves the server. When a screenshot is provided it is sent as a
+     * multipart attachment; otherwise a plain JSON request is made.
      *
      * @param string $subject    Ticket subject line.
      * @param string $message    Message body written by the user.
      * @param string $currenturl URL of the page the user was on.
      * @param string $coursename Name of the current course, or empty string.
      * @param string $userrole   Role label (Staff or Student), or empty string.
+     * @param string $screenshot Base64-encoded JPEG, or empty string.
      * @return array
      */
     public static function execute(
@@ -74,7 +82,8 @@ class submit_ticket extends external_api {
         string $message,
         string $currenturl,
         string $coursename,
-        string $userrole
+        string $userrole,
+        string $screenshot = ''
     ): array {
         global $CFG, $USER;
 
@@ -86,6 +95,7 @@ class submit_ticket extends external_api {
             'currenturl' => $currenturl,
             'coursename' => $coursename,
             'userrole'   => $userrole,
+            'screenshot' => $screenshot,
         ]);
 
         $config    = get_config('local_freshdeskwidget');
@@ -121,22 +131,55 @@ class submit_ticket extends external_api {
             htmlspecialchars($profileurl, ENT_QUOTES) . '</a></p>';
         $descparts[] = '<p><strong>Moodle user ID:</strong> ' . (int) $USER->id . '</p>';
 
-        $payload = json_encode([
-            'email'       => $USER->email,
-            'name'        => fullname($USER),
-            'subject'     => $params['subject'],
-            'description' => implode("\n", $descparts),
-            'source'      => 2,
-            'status'      => 2,
-            'priority'    => 1,
-        ]);
+        $description = implode("\n", $descparts);
+        $authheader  = 'Authorization: Basic ' . base64_encode($apikey . ':X');
+
+        // Decode and validate screenshot if one was supplied.
+        $screenshotpath = '';
+        if ($params['screenshot'] !== '') {
+            $decoded = base64_decode($params['screenshot'], true);
+            // Accept only valid data under 5 MB with a JPEG magic-byte header.
+            if ($decoded !== false
+                && strlen($decoded) < 5242880
+                && substr($decoded, 0, 3) === "\xFF\xD8\xFF"
+            ) {
+                $tmpdir         = make_temp_directory('local_freshdeskwidget');
+                $screenshotpath = $tmpdir . '/' . uniqid('screenshot_', true) . '.jpg';
+                file_put_contents($screenshotpath, $decoded);
+            }
+        }
 
         $curl = new \curl();
-        $curl->setHeader([
-            'Content-Type: application/json',
-            'Authorization: Basic ' . base64_encode($apikey . ':X'),
-        ]);
-        $responsebody = $curl->post($portalurl . '/api/v2/tickets', $payload);
+
+        if ($screenshotpath !== '') {
+            // Multipart request — curl sets Content-Type with boundary automatically.
+            $curl->setHeader([$authheader]);
+            $postdata = [
+                'email'         => $USER->email,
+                'name'          => fullname($USER),
+                'subject'       => $params['subject'],
+                'description'   => $description,
+                'source'        => '2',
+                'status'        => '2',
+                'priority'      => '1',
+                'attachments[]' => new \CURLFile($screenshotpath, 'image/jpeg', 'screenshot.jpg'),
+            ];
+            $responsebody = $curl->post($portalurl . '/api/v2/tickets', $postdata);
+            @unlink($screenshotpath);
+        } else {
+            // JSON request (no attachment).
+            $curl->setHeader(['Content-Type: application/json', $authheader]);
+            $payload = json_encode([
+                'email'       => $USER->email,
+                'name'        => fullname($USER),
+                'subject'     => $params['subject'],
+                'description' => $description,
+                'source'      => 2,
+                'status'      => 2,
+                'priority'    => 1,
+            ]);
+            $responsebody = $curl->post($portalurl . '/api/v2/tickets', $payload);
+        }
 
         $info     = $curl->get_info();
         $httpcode = (int) ($info['http_code'] ?? 0);

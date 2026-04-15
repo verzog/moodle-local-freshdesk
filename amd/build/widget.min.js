@@ -1,15 +1,24 @@
 /**
- * Freshdesk Support Widget for Moodle
- * local_freshdeskwidget/widget
+ * Freshdesk Support Widget for Moodle.
  *
  * Renders a floating Help button that opens a modal containing:
- * - A search box that queries the Freshdesk knowledge base via REST API
- * - Article results displayed inline
- * - A native contact form that submits tickets via Moodle AJAX (server-side proxy)
+ *  - Auto-suggested knowledge base articles on open (course name + activity type)
+ *  - A search box that queries the Freshdesk knowledge base via REST API
+ *  - Inline article viewer with option to open the full article in Freshdesk
+ *  - A native contact form that submits tickets via Moodle AJAX (server-side proxy)
+ *  - Optional screenshot attachment via file upload or clipboard paste
+ *
+ * @module     local_freshdeskwidget/widget
+ * @copyright  2026 verzog
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
 
+    /** @type {Object} Plugin configuration passed from PHP via data_for_js. */
     var cfg = {};
+
+    /** @type {string|null} Base64-encoded JPEG screenshot, or null when not set. */
+    var screenshotData = null;
 
     // -------------------------------------------------------------------------
     // CSS injected into the page
@@ -200,6 +209,28 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
             '  font-size: 14px; cursor: pointer; width: 100%;',
             '}',
 
+            /* Screenshot attachment */
+            '#fd-screenshot-area { margin-top: 4px; }',
+            '#fd-screenshot-attach {',
+            '  background: none; border: 1px dashed #ccc; border-radius: 6px;',
+            '  padding: 6px 12px; font-size: 13px; color: #666;',
+            '  cursor: pointer; width: 100%; text-align: left; box-sizing: border-box;',
+            '}',
+            '#fd-screenshot-attach:hover { border-color: #999; color: #333; }',
+            '#fd-screenshot-preview-wrap {',
+            '  position: relative; margin-top: 8px; display: none;',
+            '}',
+            '#fd-screenshot-img {',
+            '  width: 100%; max-height: 120px; object-fit: contain;',
+            '  border: 1px solid #ddd; border-radius: 4px; background: #f5f5f5; display: block;',
+            '}',
+            '#fd-screenshot-clear {',
+            '  position: absolute; top: 4px; right: 4px;',
+            '  background: rgba(0,0,0,0.55); color: #fff; border: none;',
+            '  border-radius: 4px; padding: 2px 8px; font-size: 12px; cursor: pointer;',
+            '}',
+            '#fd-screenshot-hint { font-size: 11px; color: #999; margin: 4px 0 0; }',
+
             /* Responsive */
             '@media (max-width: 600px) {',
             '  #fd-modal { width: 98vw; height: 95vh; border-radius: 6px; }',
@@ -273,6 +304,15 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
             '      <div>',
             '        <label for="fd-ticket-message">How can we help?</label>',
             '        <textarea id="fd-ticket-message" placeholder="Describe your issue..."></textarea>',
+            '      </div>',
+            '      <div id="fd-screenshot-area">',
+            '        <button type="button" id="fd-screenshot-attach">&#128247; Attach screenshot</button>',
+            '        <input id="fd-screenshot-file" type="file" accept="image/*" style="display:none;" />',
+            '        <div id="fd-screenshot-preview-wrap">',
+            '          <img id="fd-screenshot-img" alt="Screenshot preview" />',
+            '          <button type="button" id="fd-screenshot-clear">&times; Remove</button>',
+            '        </div>',
+            '        <p id="fd-screenshot-hint">You can also paste (Ctrl+V / \u2318V) a screenshot.</p>',
             '      </div>',
             '      <p id="fd-contact-error"></p>',
             '      <button id="fd-contact-submit">Send</button>',
@@ -607,6 +647,32 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
     }
 
     // -------------------------------------------------------------------------
+    // Process an image file into a compressed JPEG and store as screenshotData
+    // -------------------------------------------------------------------------
+    function processScreenshotFile(file) {
+        var reader = new FileReader();
+        reader.onload = function(ev) {
+            var img = new Image();
+            img.onload = function() {
+                var maxW   = 1280;
+                var scale  = img.width > maxW ? maxW / img.width : 1;
+                var canvas = document.createElement('canvas');
+                canvas.width  = Math.round(img.width  * scale);
+                canvas.height = Math.round(img.height * scale);
+                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                // Store only the base64 part (strip the data URL prefix).
+                screenshotData = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+                var previewWrap = document.getElementById('fd-screenshot-preview-wrap');
+                var previewImg  = document.getElementById('fd-screenshot-img');
+                previewImg.src            = 'data:image/jpeg;base64,' + screenshotData;
+                previewWrap.style.display = 'block';
+            };
+            img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // -------------------------------------------------------------------------
     // Submit ticket via Moodle AJAX (server-side Freshdesk API proxy)
     // -------------------------------------------------------------------------
     function submitTicket() {
@@ -636,9 +702,10 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
             args: {
                 subject:    subject,
                 message:    message,
-                currenturl: cfg.currentUrl  || '',
-                coursename: cfg.courseName  || '',
-                userrole:   cfg.userRole    || '',
+                currenturl: cfg.currentUrl   || '',
+                coursename: cfg.courseName   || '',
+                userrole:   cfg.userRole     || '',
+                screenshot: screenshotData   || '',
             }
         }])[0].then(function(result) {
             if (result.success) {
@@ -681,6 +748,12 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
         var submitBtn = document.getElementById('fd-contact-submit');
         submitBtn.disabled    = false;
         submitBtn.textContent = 'Send';
+
+        // Reset screenshot state.
+        screenshotData = null;
+        document.getElementById('fd-screenshot-preview-wrap').style.display = 'none';
+        document.getElementById('fd-screenshot-img').src = '';
+        document.getElementById('fd-screenshot-file').value = '';
     }
 
     // -------------------------------------------------------------------------
@@ -749,6 +822,43 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
 
         submitBtn.addEventListener('click', submitTicket);
 
+        // Screenshot: file picker.
+        var screenshotAttachBtn = document.getElementById('fd-screenshot-attach');
+        var screenshotFileInput = document.getElementById('fd-screenshot-file');
+        var screenshotClearBtn  = document.getElementById('fd-screenshot-clear');
+
+        screenshotAttachBtn.addEventListener('click', function() {
+            screenshotFileInput.click();
+        });
+
+        screenshotFileInput.addEventListener('change', function() {
+            if (screenshotFileInput.files.length > 0) {
+                processScreenshotFile(screenshotFileInput.files[0]);
+            }
+        });
+
+        screenshotClearBtn.addEventListener('click', function() {
+            screenshotData = null;
+            document.getElementById('fd-screenshot-preview-wrap').style.display = 'none';
+            document.getElementById('fd-screenshot-img').src = '';
+            screenshotFileInput.value = '';
+        });
+
+        // Screenshot: clipboard paste (image only; text paste in inputs is unaffected).
+        document.addEventListener('paste', function(e) {
+            if (overlay.style.display !== 'block') { return; }
+            var items = e.clipboardData && e.clipboardData.items;
+            if (!items) { return; }
+            var i;
+            for (i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    processScreenshotFile(items[i].getAsFile());
+                    e.preventDefault();
+                    break;
+                }
+            }
+        });
+
         artBackBtn.addEventListener('click', function() {
             document.getElementById('fd-article-view').style.display = 'none';
             document.getElementById('fd-articles').style.display     = '';
@@ -760,6 +870,11 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
     // Entry point
     // -------------------------------------------------------------------------
     return {
+        /**
+         * Initialise the widget. Called by Moodle's AMD loader via js_call_amd.
+         * Reads configuration from window.local_freshdeskwidget_config (injected
+         * by the before_footer hook), builds the modal DOM, and wires events.
+         */
         init: function() {
             cfg = window.local_freshdeskwidget_config || {};
 
