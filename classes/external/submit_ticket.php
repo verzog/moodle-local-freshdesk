@@ -39,7 +39,6 @@ use core_external\external_value;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class submit_ticket extends external_api {
-
     /**
      * Defines the parameters accepted by execute().
      *
@@ -139,7 +138,8 @@ class submit_ticket extends external_api {
         if ($params['screenshot'] !== '') {
             $decoded = base64_decode($params['screenshot'], true);
             // Accept only valid data under 5 MB with a JPEG magic-byte header.
-            if ($decoded !== false
+            if (
+                $decoded !== false
                 && strlen($decoded) < 5242880
                 && substr($decoded, 0, 3) === "\xFF\xD8\xFF"
             ) {

@@ -24,8 +24,6 @@
 
 declare(strict_types=1);
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Sets sensible defaults in the plugin config table on first install.
  *
