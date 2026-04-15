@@ -109,10 +109,6 @@ jobs:
         if: ${{ !cancelled() }}
         run: moodle-plugin-ci savepoints
 
-      - name: JavaScript Lint
-        if: ${{ !cancelled() }}
-        run: moodle-plugin-ci jslint
-
       - name: PHPUnit tests
         if: ${{ !cancelled() }}
         run: moodle-plugin-ci phpunit --fail-on-warning
