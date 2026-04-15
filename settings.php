@@ -17,7 +17,7 @@
 /**
  * Admin settings for the Freshdesk support widget plugin.
  *
- * @package    local_freshdeskwidget
+ * @package    local_freshdesk
  * @copyright  2026 verzog
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -28,46 +28,46 @@ defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
     $settings = new admin_settingpage(
-        'local_freshdeskwidget',
-        get_string('pluginname', 'local_freshdeskwidget')
+        'local_freshdesk',
+        get_string('pluginname', 'local_freshdesk')
     );
 
     $ADMIN->add('localplugins', $settings);
 
     $settings->add(new admin_setting_configcheckbox(
-        'local_freshdeskwidget/enabled',
-        get_string('enabled', 'local_freshdeskwidget'),
-        get_string('enabled_desc', 'local_freshdeskwidget'),
+        'local_freshdesk/enabled',
+        get_string('enabled', 'local_freshdesk'),
+        get_string('enabled_desc', 'local_freshdesk'),
         1
     ));
 
     $settings->add(new admin_setting_configtext(
-        'local_freshdeskwidget/portal_url',
-        get_string('portal_url', 'local_freshdeskwidget'),
-        get_string('portal_url_desc', 'local_freshdeskwidget'),
+        'local_freshdesk/portal_url',
+        get_string('portal_url', 'local_freshdesk'),
+        get_string('portal_url_desc', 'local_freshdesk'),
         'https://thefeaturecreep.freshdesk.com',
         PARAM_URL
     ));
 
     $settings->add(new admin_setting_configpasswordunmask(
-        'local_freshdeskwidget/api_key',
-        get_string('api_key', 'local_freshdeskwidget'),
-        get_string('api_key_desc', 'local_freshdeskwidget'),
+        'local_freshdesk/api_key',
+        get_string('api_key', 'local_freshdesk'),
+        get_string('api_key_desc', 'local_freshdesk'),
         ''
     ));
 
     $settings->add(new admin_setting_configtext(
-        'local_freshdeskwidget/widget_color',
-        get_string('widget_color', 'local_freshdeskwidget'),
-        get_string('widget_color_desc', 'local_freshdeskwidget'),
+        'local_freshdesk/widget_color',
+        get_string('widget_color', 'local_freshdesk'),
+        get_string('widget_color_desc', 'local_freshdesk'),
         '#006B6B',
         PARAM_TEXT
     ));
 
     $settings->add(new admin_setting_configcheckbox(
-        'local_freshdeskwidget/hide_for_admins',
-        get_string('hide_for_admins', 'local_freshdeskwidget'),
-        get_string('hide_for_admins_desc', 'local_freshdeskwidget'),
+        'local_freshdesk/hide_for_admins',
+        get_string('hide_for_admins', 'local_freshdesk'),
+        get_string('hide_for_admins_desc', 'local_freshdesk'),
         0
     ));
 }

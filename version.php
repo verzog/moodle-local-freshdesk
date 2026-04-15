@@ -17,7 +17,7 @@
 /**
  * Plugin version and metadata.
  *
- * @package    local_freshdeskwidget
+ * @package    local_freshdesk
  * @copyright  2026 verzog
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,8 +26,8 @@ declare(strict_types=1);
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'local_freshdeskwidget';
-$plugin->version   = 2026041015;
+$plugin->component = 'local_freshdesk';
+$plugin->version   = 2026041016;
 $plugin->requires  = 2024100700; // Requires Moodle 4.5 or later.
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.5.0';
+$plugin->release   = '2.0.0';

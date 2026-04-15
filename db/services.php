@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * External functions registered for local_freshdeskwidget.
+ * External functions registered for local_freshdesk.
  *
- * @package    local_freshdeskwidget
+ * @package    local_freshdesk
  * @copyright  2026 verzog
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -27,8 +27,8 @@ declare(strict_types=1);
 defined('MOODLE_INTERNAL') || die();
 
 $functions = [
-    'local_freshdeskwidget_submit_ticket' => [
-        'classname'     => \local_freshdeskwidget\external\submit_ticket::class,
+    'local_freshdesk_submit_ticket' => [
+        'classname'     => \local_freshdesk\external\submit_ticket::class,
         'description'   => 'Submit a Freshdesk support ticket on behalf of the current user.',
         'type'          => 'write',
         'ajax'          => true,

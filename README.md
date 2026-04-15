@@ -26,7 +26,7 @@ A Moodle local plugin that adds a floating **Get Help** button to every page, op
 
 1. Copy the plugin folder into your Moodle installation:
    ```
-   /path/to/moodle/local/freshdeskwidget/
+   /path/to/moodle/local/freshdesk/
    ```
 
 2. Log in as a site administrator and go to:
@@ -69,7 +69,7 @@ grunt amd --root=local/freshdeskwidget
 ## File Structure
 
 ```
-local/freshdeskwidget/
+local/freshdesk/
 ├── amd/
 │   ├── build/
 │   │   └── widget.min.js                    # Built AMD module (loaded by Moodle)

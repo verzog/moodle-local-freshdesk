@@ -15,12 +15,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Lib file for local_freshdeskwidget.
+ * Lib file for local_freshdesk.
  *
  * The widget is injected via the hook callback in
- * local_freshdeskwidget\hook\output\before_footer (db/hooks.php).
+ * local_freshdesk\hook\output\before_footer (db/hooks.php).
  *
- * @package    local_freshdeskwidget
+ * @package    local_freshdesk
  * @copyright  2026 verzog
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

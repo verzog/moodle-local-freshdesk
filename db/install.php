@@ -17,7 +17,7 @@
 /**
  * Runs once when the plugin is first installed.
  *
- * @package    local_freshdeskwidget
+ * @package    local_freshdesk
  * @copyright  2026 verzog
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -29,12 +29,12 @@ declare(strict_types=1);
  *
  * @return bool
  */
-function xmldb_local_freshdeskwidget_install(): bool {
-    set_config('enabled', 1, 'local_freshdeskwidget');
-    set_config('portal_url', 'https://thefeaturecreep.freshdesk.com', 'local_freshdeskwidget');
-    set_config('api_key', '', 'local_freshdeskwidget');
-    set_config('widget_color', '#006B6B', 'local_freshdeskwidget');
-    set_config('hide_for_admins', 0, 'local_freshdeskwidget');
+function xmldb_local_freshdesk_install(): bool {
+    set_config('enabled', 1, 'local_freshdesk');
+    set_config('portal_url', 'https://thefeaturecreep.freshdesk.com', 'local_freshdesk');
+    set_config('api_key', '', 'local_freshdesk');
+    set_config('widget_color', '#006B6B', 'local_freshdesk');
+    set_config('hide_for_admins', 0, 'local_freshdesk');
 
     return true;
 }

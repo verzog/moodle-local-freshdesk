@@ -8,7 +8,7 @@
  *  - A native contact form that submits tickets via Moodle AJAX (server-side proxy)
  *  - Optional screenshot attachment via file upload or clipboard paste
  *
- * @module     local_freshdeskwidget/widget
+ * @module     local_freshdesk/widget
  * @copyright  2026 verzog
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -698,7 +698,7 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
         submitBtn.textContent = 'Sending...';
 
         Ajax.call([{
-            methodname: 'local_freshdeskwidget_submit_ticket',
+            methodname: 'local_freshdesk_submit_ticket',
             args: {
                 subject:    subject,
                 message:    message,
@@ -714,7 +714,7 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
             }
             return result;
         }).catch(function(err) {
-            window.console.error('local_freshdeskwidget: ticket submission failed: ' + JSON.stringify(err));
+            window.console.error('local_freshdesk: ticket submission failed: ' + JSON.stringify(err));
             errorEl.textContent   = 'Failed to submit ticket. Please try again.';
             errorEl.style.display = 'block';
             submitBtn.disabled    = false;
@@ -872,14 +872,14 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
     return {
         /**
          * Initialise the widget. Called by Moodle's AMD loader via js_call_amd.
-         * Reads configuration from window.local_freshdeskwidget_config (injected
+         * Reads configuration from window.local_freshdesk_config (injected
          * by the before_footer hook), builds the modal DOM, and wires events.
          */
         init: function() {
-            cfg = window.local_freshdeskwidget_config || {};
+            cfg = window.local_freshdesk_config || {};
 
             if (!cfg.portalUrl) {
-                console.warn('local_freshdeskwidget: missing config, widget not loaded.');
+                console.warn('local_freshdesk: missing config, widget not loaded.');
                 return;
             }
 
