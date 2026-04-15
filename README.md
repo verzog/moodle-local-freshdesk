@@ -42,7 +42,7 @@ Prior to v2.0.0 the plugin was named `local_freshdeskwidget` and installed under
 1. Move the plugin folder: `mv local/freshdeskwidget local/freshdesk`
 2. Log in as admin and go to **Site Administration → Notifications** to run the upgrade
 
-All settings and configuration are preserved — only the folder name changes.
+Moodle treats the rename as a fresh install and runs `db/install.php`, which automatically detects and copies your existing settings (API key, portal URL, colour, etc.) from the old component name — no need to re-enter them.
 
 ## Configuration
 
