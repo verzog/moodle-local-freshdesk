@@ -15,7 +15,6 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: moodle
         ports:
           - 5432:5432
         options: >-
@@ -86,29 +85,29 @@ jobs:
           MOODLE_BRANCH: ${{ matrix.moodle-branch }}
 
       - name: PHP Lint
-        if: ${{ !cancelled() }}
+        if: ${{ success() }}
         run: moodle-plugin-ci phplint
 
       - name: PHP Copy/Paste Detector
-        if: ${{ !cancelled() }}
+        if: ${{ success() }}
         run: moodle-plugin-ci phpcpd
 
       - name: Moodle Code Checker
-        if: ${{ !cancelled() }}
+        if: ${{ success() }}
         run: moodle-plugin-ci codechecker
 
       - name: Moodle PHPDoc Checker
-        if: ${{ !cancelled() }}
+        if: ${{ success() }}
         run: moodle-plugin-ci phpdoc
 
       - name: Validate plugin structure
-        if: ${{ !cancelled() }}
+        if: ${{ success() }}
         run: moodle-plugin-ci validate
 
       - name: Check upgrade savepoints
-        if: ${{ !cancelled() }}
+        if: ${{ success() }}
         run: moodle-plugin-ci savepoints
 
       - name: PHPUnit tests
-        if: ${{ !cancelled() }}
+        if: ${{ success() }}
         run: moodle-plugin-ci phpunit --fail-on-warning
