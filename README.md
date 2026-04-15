@@ -26,7 +26,7 @@ A Moodle local plugin that adds a floating **Get Help** button to every page, op
 
 1. Copy the plugin folder into your Moodle installation:
    ```
-   /path/to/moodle/local/freshdeskwidget/
+   /path/to/moodle/local/freshdesk/
    ```
 
 2. Log in as a site administrator and go to:
@@ -34,6 +34,15 @@ A Moodle local plugin that adds a floating **Get Help** button to every page, op
    Moodle will detect the new plugin and run the installer.
 
 3. Go to **Site Administration → Local plugins → Freshdesk Support Widget** to configure the plugin.
+
+## Upgrading from v1.x (local_freshdeskwidget)
+
+Prior to v2.0.0 the plugin was named `local_freshdeskwidget` and installed under `local/freshdeskwidget/`. To upgrade an existing site:
+
+1. Move the plugin folder: `mv local/freshdeskwidget local/freshdesk`
+2. Log in as admin and go to **Site Administration → Notifications** to run the upgrade
+
+All settings and configuration are preserved — only the folder name changes.
 
 ## Configuration
 
@@ -63,13 +72,13 @@ The `amd/build/widget.min.js` file is currently an unminified copy of the source
 ```bash
 cd /path/to/moodle
 npm install
-grunt amd --root=local/freshdeskwidget
+grunt amd --root=local/freshdesk
 ```
 
 ## File Structure
 
 ```
-local/freshdeskwidget/
+local/freshdesk/
 ├── amd/
 │   ├── build/
 │   │   └── widget.min.js                    # Built AMD module (loaded by Moodle)
@@ -88,7 +97,7 @@ local/freshdeskwidget/
 │   └── upgrade.php                          # Upgrade steps between versions
 ├── lang/
 │   └── en/
-│       └── local_freshdeskwidget.php        # English language strings
+│       └── local_freshdesk.php              # English language strings
 ├── settings.php                             # Admin settings page
 ├── version.php                              # Plugin metadata
 └── README.md

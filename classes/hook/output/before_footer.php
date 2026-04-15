@@ -17,14 +17,14 @@
 /**
  * Hook callback to inject the Freshdesk widget before the page footer.
  *
- * @package    local_freshdeskwidget
+ * @package    local_freshdesk
  * @copyright  2026 verzog
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 declare(strict_types=1);
 
-namespace local_freshdeskwidget\hook\output;
+namespace local_freshdesk\hook\output;
 
 use core\context\course as course_context;
 use core\hook\output\before_footer_html_generation;
@@ -32,7 +32,7 @@ use core\hook\output\before_footer_html_generation;
 /**
  * Injects Freshdesk widget configuration and AMD module into every Moodle page.
  *
- * @package    local_freshdeskwidget
+ * @package    local_freshdesk
  * @copyright  2026 verzog
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -53,7 +53,7 @@ class before_footer {
         $isloggedin = isloggedin() && !isguestuser();
         $isadmin    = is_siteadmin();
 
-        $config = get_config('local_freshdeskwidget');
+        $config = get_config('local_freshdesk');
 
         if (empty($config->enabled)) {
             return;
@@ -84,7 +84,7 @@ class before_footer {
         $apikey      = (string) ($config->api_key ?? '');
         $widgetcolor = (string) ($config->widget_color ?? '#006B6B');
 
-        $PAGE->requires->data_for_js('local_freshdeskwidget_config', [
+        $PAGE->requires->data_for_js('local_freshdesk_config', [
             'portalUrl'      => $portalurl,
             'apiKey'         => $apikey,
             'userEmail'      => $useremail,
@@ -98,6 +98,6 @@ class before_footer {
             'widgetColor'    => $widgetcolor,
         ]);
 
-        $PAGE->requires->js_call_amd('local_freshdeskwidget/widget', 'init');
+        $PAGE->requires->js_call_amd('local_freshdesk/widget', 'init');
     }
 }

@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Hook callback registrations for local_freshdeskwidget.
+ * Hook callback registrations for local_freshdesk.
  *
- * @package    local_freshdeskwidget
+ * @package    local_freshdesk
  * @copyright  2026 verzog
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -29,7 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 $callbacks = [
     [
         'hook'     => \core\hook\output\before_footer_html_generation::class,
-        'callback' => \local_freshdeskwidget\hook\output\before_footer::class . '::callback',
+        'callback' => \local_freshdesk\hook\output\before_footer::class . '::callback',
         'priority' => 500,
     ],
 ];

@@ -17,14 +17,14 @@
 /**
  * External function to submit a Freshdesk support ticket.
  *
- * @package    local_freshdeskwidget
+ * @package    local_freshdesk
  * @copyright  2026 verzog
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 declare(strict_types=1);
 
-namespace local_freshdeskwidget\external;
+namespace local_freshdesk\external;
 
 use core_external\external_api;
 use core_external\external_function_parameters;
@@ -34,7 +34,7 @@ use core_external\external_value;
 /**
  * Proxies ticket creation to the Freshdesk REST API, keeping the API key server-side.
  *
- * @package    local_freshdeskwidget
+ * @package    local_freshdesk
  * @copyright  2026 verzog
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -97,12 +97,12 @@ class submit_ticket extends external_api {
             'screenshot' => $screenshot,
         ]);
 
-        $config    = get_config('local_freshdeskwidget');
+        $config    = get_config('local_freshdesk');
         $apikey    = (string) ($config->api_key ?? '');
         $portalurl = rtrim((string) ($config->portal_url ?? ''), '/');
 
         if (empty($config->enabled) || $apikey === '' || $portalurl === '') {
-            throw new \moodle_exception('errorsubmitting', 'local_freshdeskwidget');
+            throw new \moodle_exception('errorsubmitting', 'local_freshdesk');
         }
 
         // Build HTML ticket description with page context.
@@ -143,7 +143,7 @@ class submit_ticket extends external_api {
                 && strlen($decoded) < 5242880
                 && substr($decoded, 0, 3) === "\xFF\xD8\xFF"
             ) {
-                $tmpdir         = make_temp_directory('local_freshdeskwidget');
+                $tmpdir         = make_temp_directory('local_freshdesk');
                 $screenshotpath = $tmpdir . '/' . uniqid('screenshot_', true) . '.jpg';
                 file_put_contents($screenshotpath, $decoded);
             }
@@ -187,7 +187,7 @@ class submit_ticket extends external_api {
         if ($httpcode !== 201) {
             throw new \moodle_exception(
                 'errorsubmitting',
-                'local_freshdeskwidget',
+                'local_freshdesk',
                 '',
                 null,
                 'HTTP ' . $httpcode . ' — ' . substr((string) $responsebody, 0, 300)
