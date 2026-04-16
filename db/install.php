@@ -27,9 +27,23 @@ declare(strict_types=1);
 /**
  * Sets sensible defaults in the plugin config table on first install.
  *
+ * When migrating from the previous component name (local_freshdeskwidget),
+ * existing settings are copied across automatically so the API key and
+ * portal URL do not need to be re-entered.
+ *
  * @return bool
  */
 function xmldb_local_freshdesk_install(): bool {
+    // Migrate settings from the old component name if they exist.
+    $oldconfig = get_config('local_freshdeskwidget');
+    if (isset($oldconfig->portal_url)) {
+        foreach ((array) $oldconfig as $name => $value) {
+            set_config($name, $value, 'local_freshdesk');
+        }
+        return true;
+    }
+
+    // Fresh install: set sensible defaults.
     set_config('enabled', 1, 'local_freshdesk');
     set_config('portal_url', 'https://thefeaturecreep.freshdesk.com', 'local_freshdesk');
     set_config('api_key', '', 'local_freshdesk');
