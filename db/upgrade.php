@@ -138,5 +138,18 @@ function xmldb_local_freshdesk_upgrade($oldversion): bool {
         upgrade_plugin_savepoint(true, 2026041016, 'local', 'freshdesk');
     }
 
+    if ($oldversion < 2026041017) {
+        // Security: article search and single-article retrieval are now proxied
+        // server-side via two new AJAX functions (local_freshdesk_search_articles,
+        // local_freshdesk_get_article). The Freshdesk API key is no longer passed
+        // to the browser. Run Moodle's "Purge all caches" after upgrading.
+        // Privacy API: added classes/privacy/provider.php declaring personal data
+        // transmitted to Freshdesk when a ticket is submitted.
+        // Settings: default portal_url changed to empty string; widget colour now
+        // uses a colour-picker control. Role labels (Staff/Student) moved to lang strings.
+        // No database changes required.
+        upgrade_plugin_savepoint(true, 2026041017, 'local', 'freshdesk');
+    }
+
     return true;
 }

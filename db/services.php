@@ -34,4 +34,18 @@ $functions = [
         'ajax'          => true,
         'loginrequired' => true,
     ],
+    'local_freshdesk_search_articles' => [
+        'classname'     => \local_freshdesk\external\search_articles::class,
+        'description'   => 'Search Freshdesk knowledge base articles (server-side proxy).',
+        'type'          => 'read',
+        'ajax'          => true,
+        'loginrequired' => true,
+    ],
+    'local_freshdesk_get_article' => [
+        'classname'     => \local_freshdesk\external\get_article::class,
+        'description'   => 'Retrieve a single Freshdesk knowledge base article (server-side proxy).',
+        'type'          => 'read',
+        'ajax'          => true,
+        'loginrequired' => true,
+    ],
 ];

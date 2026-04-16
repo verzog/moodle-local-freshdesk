@@ -344,54 +344,33 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
     }
 
     // -------------------------------------------------------------------------
-    // API: search articles
+    // API: search articles (server-side proxy — API key never reaches browser)
     // -------------------------------------------------------------------------
     function searchArticles(term, callback) {
-        var url = cfg.portalUrl + '/api/v2/search/solutions?term=' + encodeURIComponent(term);
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', url, true);
-        xhr.setRequestHeader('Authorization', 'Basic ' + btoa(cfg.apiKey + ':X'));
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4) {
-                if (xhr.status === 200) {
-                    try {
-                        var data = JSON.parse(xhr.responseText);
-                        callback(null, data.results || data || []);
-                    } catch(e) {
-                        callback('Parse error', []);
-                    }
-                } else {
-                    callback('API error ' + xhr.status, []);
-                }
-            }
-        };
-        xhr.send();
+        Ajax.call([{
+            methodname: 'local_freshdesk_search_articles',
+            args: {query: term}
+        }])[0].then(function(result) {
+            callback(null, result.articles || []);
+            return result;
+        }).catch(function() {
+            callback('Search failed', []);
+        });
     }
 
     // -------------------------------------------------------------------------
-    // API: get single article
+    // API: get single article (server-side proxy — API key never reaches browser)
     // -------------------------------------------------------------------------
     function getArticle(articleId, callback) {
-        var url = cfg.portalUrl + '/api/v2/solutions/articles/' + articleId;
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', url, true);
-        xhr.setRequestHeader('Authorization', 'Basic ' + btoa(cfg.apiKey + ':X'));
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4) {
-                if (xhr.status === 200) {
-                    try {
-                        callback(null, JSON.parse(xhr.responseText));
-                    } catch(e) {
-                        callback('Parse error', null);
-                    }
-                } else {
-                    callback('API error ' + xhr.status, null);
-                }
-            }
-        };
-        xhr.send();
+        Ajax.call([{
+            methodname: 'local_freshdesk_get_article',
+            args: {articleid: articleId}
+        }])[0].then(function(result) {
+            callback(null, result);
+            return result;
+        }).catch(function() {
+            callback('Load failed', null);
+        });
     }
 
     // -------------------------------------------------------------------------
@@ -592,7 +571,6 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
     // Auto-suggest articles in the contact form panel (inline, new-tab links)
     // -------------------------------------------------------------------------
     function loadSuggestedArticles() {
-        if (!cfg.apiKey) { return; }
         var terms = getSearchTerms();
         if (!terms.length) { return; }
 
@@ -629,7 +607,6 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
     // Auto-suggest articles on the main modal home screen
     // -------------------------------------------------------------------------
     function loadPageSuggestions() {
-        if (!cfg.apiKey) { return; }
         var terms = getSearchTerms();
         if (!terms.length) { return; }
 

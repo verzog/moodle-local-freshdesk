@@ -67,7 +67,9 @@ class before_footer {
         $courseid  = (int) $COURSE->id;
         $context   = $courseid > 1 ? course_context::instance($courseid) : \core\context\system::instance();
         $isstaff   = has_capability('moodle/course:manageactivities', $context);
-        $rolelabel = $isstaff ? 'Staff' : 'Student';
+        $rolelabel = $isstaff
+            ? get_string('role_staff', 'local_freshdesk')
+            : get_string('role_student', 'local_freshdesk');
 
         // Resolve user details, empty strings for guests.
         $useremail      = $isloggedin ? $USER->email : '';
@@ -80,13 +82,11 @@ class before_footer {
         $coursename = $courseid > 1 ? format_string($COURSE->fullname) : '';
 
         // Load Freshdesk settings from plugin config.
-        $portalurl   = rtrim((string) ($config->portal_url ?? 'https://thefeaturecreep.freshdesk.com'), '/');
-        $apikey      = (string) ($config->api_key ?? '');
+        $portalurl   = rtrim((string) ($config->portal_url ?? ''), '/');
         $widgetcolor = (string) ($config->widget_color ?? '#006B6B');
 
         $PAGE->requires->data_for_js('local_freshdesk_config', [
             'portalUrl'      => $portalurl,
-            'apiKey'         => $apikey,
             'userEmail'      => $useremail,
             'userName'       => $username,
             'userUsername'   => $userusername,
