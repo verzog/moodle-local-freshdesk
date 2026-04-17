@@ -65,6 +65,9 @@ jobs:
           ini-values: max_input_vars=5000
           coverage: none
 
+      - name: Configure PHP max_input_vars
+        run: echo "max_input_vars = 5000" | sudo tee /etc/php/${{ matrix.php }}/cli/conf.d/99-moodle-phpunit.ini
+
       - name: Initialise moodle-plugin-ci
         run: |
           composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^4
