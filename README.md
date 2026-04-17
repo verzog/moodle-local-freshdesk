@@ -106,3 +106,8 @@ local/freshdesk/
 ## License
 
 This plugin is licensed under the [GNU General Public License v3 or later](http://www.gnu.org/copyleft/gpl.html).
+
+
+## Disclaimer
+
+[Freshdesk](https://freshdesk.com) is a commercial product owned by Freshworks Inc. This plugin is an independent, community-developed integration and is not affiliated with, endorsed by, or supported by Freshworks Inc. Use of Freshdesk requires a separate account and is subject to [Freshworks' own terms of service and pricing](https://www.freshworks.com/terms/).
