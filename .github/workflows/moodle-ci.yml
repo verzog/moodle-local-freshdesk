@@ -51,6 +51,9 @@ jobs:
             db-user: root
             db-pass: ''
 
+    env:
+      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: 'true'
+
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
@@ -66,7 +69,9 @@ jobs:
           coverage: none
 
       - name: Configure PHP max_input_vars
-        run: echo "max_input_vars = 5000" | sudo tee /etc/php/${{ matrix.php }}/cli/conf.d/99-moodle-phpunit.ini
+        run: |
+          echo "max_input_vars = 5000" | sudo tee -a "$(php -r 'echo php_ini_loaded_file();')"
+          php -r 'if (ini_get("max_input_vars") < 5000) exit(1);'
 
       - name: Initialise moodle-plugin-ci
         run: |
