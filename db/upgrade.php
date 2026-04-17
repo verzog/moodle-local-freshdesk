@@ -138,5 +138,16 @@ function xmldb_local_freshdesk_upgrade($oldversion): bool {
         upgrade_plugin_savepoint(true, 2026041016, 'local', 'freshdesk');
     }
 
+    if ($oldversion < 2026041017) {
+        // Privacy: API key removed from JavaScript config; Freshdesk search and article
+        // fetch calls now proxied through new server-side external functions
+        // (local_freshdesk_search_articles, local_freshdesk_get_article).
+        // Privacy API provider added (privacy/provider.php).
+        // Audit event added (ticket_submitted) — fires on every successful ticket submission.
+        // Consent notice added to contact form informing users of data sent to Freshdesk.
+        // No database changes required.
+        upgrade_plugin_savepoint(true, 2026041017, 'local', 'freshdesk');
+    }
+
     return true;
 }

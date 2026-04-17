@@ -194,6 +194,12 @@ class submit_ticket extends external_api {
             );
         }
 
+        $event = \local_freshdesk\event\ticket_submitted::create([
+            'context' => \context_system::instance(),
+            'other'   => ['subject' => $params['subject']],
+        ]);
+        $event->trigger();
+
         return ['success' => true];
     }
 

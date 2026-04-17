@@ -80,13 +80,13 @@ class before_footer {
         $coursename = $courseid > 1 ? format_string($COURSE->fullname) : '';
 
         // Load Freshdesk settings from plugin config.
+        // The API key is intentionally NOT passed to JavaScript; all Freshdesk
+        // API calls are proxied through server-side external functions.
         $portalurl   = rtrim((string) ($config->portal_url ?? 'https://thefeaturecreep.freshdesk.com'), '/');
-        $apikey      = (string) ($config->api_key ?? '');
         $widgetcolor = (string) ($config->widget_color ?? '#006B6B');
 
         $PAGE->requires->data_for_js('local_freshdesk_config', [
             'portalUrl'      => $portalurl,
-            'apiKey'         => $apikey,
             'userEmail'      => $useremail,
             'userName'       => $username,
             'userUsername'   => $userusername,

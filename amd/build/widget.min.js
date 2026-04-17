@@ -192,6 +192,9 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
             '}',
             '#fd-contact-submit:disabled { opacity: 0.6; cursor: not-allowed; }',
             '#fd-contact-error { color: #c00; font-size: 13px; display: none; }',
+            '#fd-privacy-notice {',
+            '  font-size: 11px; color: #888; margin: 4px 0 2px; line-height: 1.4;',
+            '}',
             '#fd-contact-success {',
             '  display: none; text-align: center; padding: 32px 16px;',
             '}',
@@ -315,6 +318,8 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
             '        <p id="fd-screenshot-hint">You can also paste (Ctrl+V / \u2318V) a screenshot.</p>',
             '      </div>',
             '      <p id="fd-contact-error"></p>',
+            '      <p id="fd-privacy-notice">By submitting, your name, email address, and page context',
+            '        will be sent to our support platform (Freshdesk) to process your request.</p>',
             '      <button id="fd-contact-submit">Send</button>',
             '    </div>',
             '  </div>',
@@ -344,54 +349,37 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
     }
 
     // -------------------------------------------------------------------------
-    // API: search articles
+    // API: search articles (proxied server-side — API key never reaches browser)
     // -------------------------------------------------------------------------
     function searchArticles(term, callback) {
-        var url = cfg.portalUrl + '/api/v2/search/solutions?term=' + encodeURIComponent(term);
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', url, true);
-        xhr.setRequestHeader('Authorization', 'Basic ' + btoa(cfg.apiKey + ':X'));
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4) {
-                if (xhr.status === 200) {
-                    try {
-                        var data = JSON.parse(xhr.responseText);
-                        callback(null, data.results || data || []);
-                    } catch(e) {
-                        callback('Parse error', []);
-                    }
-                } else {
-                    callback('API error ' + xhr.status, []);
-                }
-            }
-        };
-        xhr.send();
+        Ajax.call([{
+            methodname: 'local_freshdesk_search_articles',
+            args: {term: term},
+        }])[0].then(function(results) {
+            callback(null, results || []);
+            return results;
+        }).catch(function() {
+            callback('API error', []);
+        });
     }
 
     // -------------------------------------------------------------------------
-    // API: get single article
+    // API: get single article (proxied server-side — API key never reaches browser)
     // -------------------------------------------------------------------------
     function getArticle(articleId, callback) {
-        var url = cfg.portalUrl + '/api/v2/solutions/articles/' + articleId;
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', url, true);
-        xhr.setRequestHeader('Authorization', 'Basic ' + btoa(cfg.apiKey + ':X'));
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4) {
-                if (xhr.status === 200) {
-                    try {
-                        callback(null, JSON.parse(xhr.responseText));
-                    } catch(e) {
-                        callback('Parse error', null);
-                    }
-                } else {
-                    callback('API error ' + xhr.status, null);
-                }
+        Ajax.call([{
+            methodname: 'local_freshdesk_get_article',
+            args: {articleid: articleId},
+        }])[0].then(function(article) {
+            if (!article || !article.id) {
+                callback('Not found', null);
+                return article;
             }
-        };
-        xhr.send();
+            callback(null, article);
+            return article;
+        }).catch(function() {
+            callback('API error', null);
+        });
     }
 
     // -------------------------------------------------------------------------
@@ -592,7 +580,7 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
     // Auto-suggest articles in the contact form panel (inline, new-tab links)
     // -------------------------------------------------------------------------
     function loadSuggestedArticles() {
-        if (!cfg.apiKey) { return; }
+        if (!cfg.portalUrl) { return; }
         var terms = getSearchTerms();
         if (!terms.length) { return; }
 
@@ -629,7 +617,7 @@ define(['core/config', 'core/ajax'], function(mdlConfig, Ajax) {
     // Auto-suggest articles on the main modal home screen
     // -------------------------------------------------------------------------
     function loadPageSuggestions() {
-        if (!cfg.apiKey) { return; }
+        if (!cfg.portalUrl) { return; }
         var terms = getSearchTerms();
         if (!terms.length) { return; }
 
