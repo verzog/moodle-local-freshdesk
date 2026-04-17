@@ -1,5 +1,7 @@
 # moodle-local_freshdesk
 
+[![Moodle Plugin CI](https://github.com/verzog/moodle-local_freshdesk/actions/workflows/moodle-ci.yml/badge.svg)](https://github.com/verzog/moodle-local_freshdesk/actions/workflows/moodle-ci.yml)
+
 A Moodle local plugin that adds a floating **Get Help** button to every page, opening a support modal powered by your Freshdesk account.
 
 ## Features
