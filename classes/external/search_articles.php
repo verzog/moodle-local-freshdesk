@@ -74,6 +74,13 @@ class search_articles extends external_api {
             return [];
         }
 
+        $cache    = \cache::make('local_freshdesk', 'search_results');
+        $cachekey = md5(strtolower(trim($params['term'])));
+        $cached   = $cache->get($cachekey);
+        if ($cached !== false) {
+            return $cached;
+        }
+
         $curl = new \curl();
         $curl->setHeader([
             'Authorization: Basic ' . base64_encode($apikey . ':X'),
@@ -108,6 +115,7 @@ class search_articles extends external_api {
             ];
         }
 
+        $cache->set($cachekey, $articles);
         return $articles;
     }
 
