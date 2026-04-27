@@ -74,6 +74,11 @@ class search_articles extends external_api {
             return [];
         }
 
+        // Reject non-HTTPS portal URLs to ensure the API key is never sent in clear text.
+        if (stripos($portalurl, 'https://') !== 0) {
+            return [];
+        }
+
         $cache    = \cache::make('local_freshdesk', 'search_results');
         $cachekey = md5(strtolower(trim($params['term'])));
         $cached   = $cache->get($cachekey);
@@ -82,6 +87,11 @@ class search_articles extends external_api {
         }
 
         $curl = new \curl();
+        // Bound the external request so a slow or hung Freshdesk endpoint never stalls a Moodle page.
+        $curl->setopt([
+            'CURLOPT_CONNECTTIMEOUT' => 5,
+            'CURLOPT_TIMEOUT'        => 10,
+        ]);
         $curl->setHeader([
             'Authorization: Basic ' . base64_encode($apikey . ':X'),
             'Content-Type: application/json',

@@ -149,5 +149,16 @@ function xmldb_local_freshdesk_upgrade($oldversion): bool {
         upgrade_plugin_savepoint(true, 2026041017, 'local', 'freshdesk');
     }
 
+    if ($oldversion < 2026041018) {
+        // Code-review fixes: Privacy provider relocated to classes/privacy/provider.php so
+        // it is autoloaded by Moodle. Outbound Freshdesk calls now enforce HTTPS and bound
+        // connect/read timeouts. lib.php and db/caches.php hardened with strict_types and
+        // MOODLE_INTERNAL guard. All widget UI text moved into lang strings (loaded via
+        // core/str). Modal and Help button now rendered from Mustache templates
+        // (templates/modal.mustache, templates/help_button.mustache). AMD build artifact
+        // resynced with source. No database changes required.
+        upgrade_plugin_savepoint(true, 2026041018, 'local', 'freshdesk');
+    }
+
     return true;
 }

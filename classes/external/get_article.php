@@ -74,7 +74,17 @@ class get_article extends external_api {
             return $empty;
         }
 
+        // Reject non-HTTPS portal URLs to ensure the API key is never sent in clear text.
+        if (stripos($portalurl, 'https://') !== 0) {
+            return $empty;
+        }
+
         $curl = new \curl();
+        // Bound the external request so a slow or hung Freshdesk endpoint never stalls a Moodle page.
+        $curl->setopt([
+            'CURLOPT_CONNECTTIMEOUT' => 5,
+            'CURLOPT_TIMEOUT'        => 10,
+        ]);
         $curl->setHeader([
             'Authorization: Basic ' . base64_encode($apikey . ':X'),
             'Content-Type: application/json',

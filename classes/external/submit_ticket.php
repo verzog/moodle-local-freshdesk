@@ -105,6 +105,11 @@ class submit_ticket extends external_api {
             throw new \moodle_exception('errorsubmitting', 'local_freshdesk');
         }
 
+        // Reject non-HTTPS portal URLs to ensure the API key is never sent in clear text.
+        if (stripos($portalurl, 'https://') !== 0) {
+            throw new \moodle_exception('errorsubmitting', 'local_freshdesk');
+        }
+
         // Build HTML ticket description with page context.
         $descparts   = [];
         $descparts[] = '<p>' . nl2br(htmlspecialchars($params['message'], ENT_QUOTES)) . '</p>';
@@ -150,6 +155,11 @@ class submit_ticket extends external_api {
         }
 
         $curl = new \curl();
+        // Bound the external request so a slow or hung Freshdesk endpoint never stalls a Moodle page.
+        $curl->setopt([
+            'CURLOPT_CONNECTTIMEOUT' => 5,
+            'CURLOPT_TIMEOUT'        => 20,
+        ]);
 
         if ($screenshotpath !== '') {
             // Multipart request — curl sets Content-Type with boundary automatically.

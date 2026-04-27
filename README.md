@@ -56,6 +56,25 @@ Moodle treats the rename as a fresh install and runs `db/install.php`, which aut
 | Widget button colour | Hex colour for the Get Help button | `#006B6B` |
 | Hide for site administrators | Suppress the widget for Moodle admins | Disabled |
 
+## Data sent to Freshdesk
+
+This plugin makes outbound HTTPS requests to the Freshdesk REST API at the
+configured portal URL. All API traffic is server-side; the API key never
+reaches the browser.
+
+| Endpoint | When | Data sent |
+|----------|------|-----------|
+| `GET /api/v2/search/solutions` | When the user opens the modal or runs a search | Search term derived from course name / activity type / user input |
+| `GET /api/v2/solutions/articles/{id}` | When the user clicks a suggested article | Article ID only |
+| `POST /api/v2/tickets` | When the user submits the contact form | Name, email, Moodle username, user ID, profile URL, course name, page URL, role label, ticket subject, message, and optional screenshot |
+
+Connection and read timeouts are bounded (5s connect / 10–20s read) so a slow
+or unreachable Freshdesk endpoint never stalls a Moodle page. Requests are
+rejected at the proxy layer if the configured portal URL is not HTTPS.
+
+The data sent on ticket submission is also declared via the Moodle Privacy API
+(`classes/privacy/provider.php`).
+
 ## Improving article suggestions
 
 Suggested articles are driven by the Freshdesk knowledge base search API. To maximise the chance of relevant articles appearing:
@@ -87,19 +106,30 @@ local/freshdesk/
 │   └── src/
 │       └── widget.js                        # Source AMD module
 ├── classes/
+│   ├── event/
+│   │   └── ticket_submitted.php             # Audit event fired on successful submission
 │   ├── external/
-│   │   └── submit_ticket.php                # AJAX external function (server-side Freshdesk proxy)
-│   └── hook/
-│       └── output/
-│           └── before_footer.php            # Hook callback — injects widget config and AMD module
+│   │   ├── get_article.php                  # AJAX external function (article fetch proxy)
+│   │   ├── search_articles.php              # AJAX external function (search proxy)
+│   │   └── submit_ticket.php                # AJAX external function (ticket submission proxy)
+│   ├── hook/
+│   │   └── output/
+│   │       └── before_footer.php            # Hook callback — injects widget config and AMD module
+│   └── privacy/
+│       └── provider.php                     # Privacy API provider (declares external data flow)
 ├── db/
+│   ├── caches.php                           # Cache definitions
 │   ├── hooks.php                            # Registers the before_footer hook callback
 │   ├── install.php                          # Sets default config values on install
-│   ├── services.php                         # Registers the submit_ticket AJAX service
+│   ├── services.php                         # Registers AJAX external functions
 │   └── upgrade.php                          # Upgrade steps between versions
 ├── lang/
 │   └── en/
 │       └── local_freshdesk.php              # English language strings
+├── templates/
+│   ├── help_button.mustache                 # Floating Get Help button
+│   └── modal.mustache                       # Support modal markup
+├── lib.php
 ├── settings.php                             # Admin settings page
 ├── version.php                              # Plugin metadata
 └── README.md
