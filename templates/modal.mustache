@@ -1,0 +1,115 @@
+{{!
+    @template local_freshdesk/modal
+
+    Support modal opened from the floating Help button. Contains a knowledge
+    base search panel, an article viewer, and a contact / ticket form.
+
+    Context variables required for this template:
+    * str - Object of pre-translated strings keyed by identifier:
+        title, close, searchplaceholder, searchbutton, initialprompt,
+        backtoresults, openfullarticle, back, ticketsubmitted, ticketreply,
+        subjectlabel, messagelabel, messageplaceholder, attachscreenshot,
+        removescreenshot, screenshothint, privacynotice, send,
+        relatedheading, contactsupport
+
+    Example context (json):
+    {
+        "str": {
+            "title": "Support",
+            "close": "Close support widget",
+            "searchplaceholder": "Search help articles...",
+            "searchbutton": "Search",
+            "initialprompt": "Search for help articles above, or contact support below.",
+            "backtoresults": "Back to results",
+            "openfullarticle": "Open full article",
+            "back": "Back",
+            "ticketsubmitted": "Your ticket has been submitted!",
+            "ticketreply": "We'll reply to your registered email address.",
+            "subjectlabel": "Subject",
+            "messagelabel": "How can we help?",
+            "messageplaceholder": "Describe your issue...",
+            "attachscreenshot": "Attach screenshot",
+            "removescreenshot": "Remove",
+            "screenshothint": "You can also paste a screenshot.",
+            "privacynotice": "By submitting, your data will be sent to Freshdesk.",
+            "send": "Send",
+            "relatedheading": "Related articles",
+            "contactsupport": "Contact Support"
+        }
+    }
+}}
+<div id="fd-modal-overlay">
+    <div id="fd-modal" role="dialog" aria-modal="true" aria-label="{{str.title}}">
+        <div id="fd-modal-header">
+            <h2><span aria-hidden="true">&#128587;</span> {{str.title}}</h2>
+            <button id="fd-modal-close" type="button" aria-label="{{str.close}}">&times;</button>
+        </div>
+
+        <div id="fd-search-panel">
+            <div id="fd-search-row">
+                <input id="fd-search-input" type="text"
+                    placeholder="{{str.searchplaceholder}}"
+                    aria-label="{{str.searchplaceholder}}"/>
+                <button id="fd-search-btn" type="button">{{str.searchbutton}}</button>
+            </div>
+        </div>
+
+        <div id="fd-results">
+            <div id="fd-status">{{str.initialprompt}}</div>
+            <div id="fd-articles"></div>
+
+            <div id="fd-article-view">
+                <div id="fd-article-back">
+                    <button id="fd-article-back-btn" type="button">&#8592; {{str.backtoresults}}</button>
+                    <button id="fd-article-open-btn" type="button">{{str.openfullarticle}} &#8599;</button>
+                </div>
+                <div id="fd-article-content"></div>
+            </div>
+
+            <div id="fd-contact-form">
+                <div id="fd-contact-form-back">
+                    <button id="fd-contact-back-btn" type="button">&#8592; {{str.back}}</button>
+                </div>
+                <div id="fd-contact-success">
+                    <p id="fd-contact-success-msg"><span aria-hidden="true">&#10003;</span> {{str.ticketsubmitted}}</p>
+                    <p id="fd-contact-success-sub">{{str.ticketreply}}</p>
+                </div>
+                <div id="fd-contact-fields">
+                    <div id="fd-contact-userinfo"></div>
+                    <div id="fd-suggest-section" style="display:none;">
+                        <p id="fd-suggest-heading">{{str.relatedheading}}</p>
+                        <div id="fd-suggest-articles"></div>
+                    </div>
+                    <div>
+                        <label for="fd-ticket-subject">{{str.subjectlabel}}</label>
+                        <input id="fd-ticket-subject" type="text" maxlength="255" />
+                    </div>
+                    <div>
+                        <label for="fd-ticket-message">{{str.messagelabel}}</label>
+                        <textarea id="fd-ticket-message" placeholder="{{str.messageplaceholder}}"></textarea>
+                    </div>
+                    <div id="fd-screenshot-area">
+                        <button type="button" id="fd-screenshot-attach">
+                            <span aria-hidden="true">&#128247;</span> {{str.attachscreenshot}}
+                        </button>
+                        <input id="fd-screenshot-file" type="file" accept="image/*" style="display:none;" />
+                        <div id="fd-screenshot-preview-wrap">
+                            <img id="fd-screenshot-img" alt="" />
+                            <button type="button" id="fd-screenshot-clear">&times; {{str.removescreenshot}}</button>
+                        </div>
+                        <p id="fd-screenshot-hint">{{str.screenshothint}}</p>
+                    </div>
+                    <p id="fd-contact-error"></p>
+                    <p id="fd-privacy-notice">{{str.privacynotice}}</p>
+                    <button id="fd-contact-submit" type="button">{{str.send}}</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="fd-contact-bar">
+            <button id="fd-contact-btn" type="button">
+                <span aria-hidden="true">&#9993;</span> {{str.contactsupport}}
+            </button>
+        </div>
+    </div>
+</div>
