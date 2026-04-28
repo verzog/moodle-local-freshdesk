@@ -63,6 +63,12 @@ class before_footer {
             return;
         }
 
+        // Hide the widget from anyone who lacks local/freshdesk:use; the AJAX
+        // endpoints enforce the same capability so this is purely cosmetic.
+        if (!has_capability('local/freshdesk:use', \core\context\system::instance())) {
+            return;
+        }
+
         // Determine role from course capability (falls back to site context on non-course pages).
         $courseid  = (int) $COURSE->id;
         $context   = $courseid > 1 ? course_context::instance($courseid) : \core\context\system::instance();

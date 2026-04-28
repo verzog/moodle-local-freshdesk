@@ -41,6 +41,9 @@ $string['widget_color_desc']    = 'Hex colour for the Get Help button, e.g. #006
 $string['errorsubmitting']        = 'Failed to submit your support ticket. Please check the plugin configuration or try again later.';
 $string['event_ticket_submitted'] = 'Freshdesk support ticket submitted';
 
+// Capability strings.
+$string['freshdesk:use'] = 'Use the Freshdesk support widget';
+
 // Widget UI strings (used by amd/src/widget.js via core/str).
 $string['articleloaderror']  = 'Could not load article.';
 $string['attachscreenshot']  = 'Attach screenshot';

@@ -178,5 +178,16 @@ function xmldb_local_freshdesk_upgrade($oldversion): bool {
         upgrade_plugin_savepoint(true, 2026041020, 'local', 'freshdesk');
     }
 
+    if ($oldversion < 2026041021) {
+        // Capability: introduced local/freshdesk:use, granted by default to user,
+        // student, teacher, editingteacher, and manager archetypes. The three
+        // external functions (submit_ticket, search_articles, get_article) now call
+        // require_capability('local/freshdesk:use', \context_system::instance())
+        // after validate_context(), and the before_footer hook hides the widget
+        // from users who lack the capability. The capability is created
+        // automatically by Moodle when the plugin upgrade runs.
+        upgrade_plugin_savepoint(true, 2026041021, 'local', 'freshdesk');
+    }
+
     return true;
 }

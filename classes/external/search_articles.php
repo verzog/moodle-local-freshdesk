@@ -66,10 +66,12 @@ class search_articles extends external_api {
 
         $params = self::validate_parameters(self::execute_parameters(), ['term' => $term]);
 
-        // The widget is exposed site-wide; gate the AJAX call behind the system context
-        // so guest / unauthenticated sessions cannot reach the proxy.
+        // The widget is exposed site-wide; validate the system context and require the
+        // local/freshdesk:use capability so guest / unauthenticated sessions and any
+        // role explicitly denied this capability cannot reach the proxy.
         $context = \context_system::instance();
         self::validate_context($context);
+        require_capability('local/freshdesk:use', $context);
 
         $config    = get_config('local_freshdesk');
         $apikey    = (string) ($config->api_key ?? '');

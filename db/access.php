@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin version and metadata.
+ * Capability definitions for local_freshdesk.
  *
  * @package    local_freshdesk
  * @copyright  2026 verzog
@@ -26,8 +26,19 @@ declare(strict_types=1);
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'local_freshdesk';
-$plugin->version   = 2026041021;
-$plugin->requires  = 2024100700; // Requires Moodle 4.5 or later.
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '2.3.0';
+$capabilities = [
+    // Allowed to use the Freshdesk support widget — search articles, view
+    // articles, and submit support tickets via the AJAX proxy. Granted to
+    // all authenticated roles by default; guests are excluded.
+    'local/freshdesk:use' => [
+        'captype'      => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes'   => [
+            'user'           => CAP_ALLOW,
+            'student'        => CAP_ALLOW,
+            'teacher'        => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager'        => CAP_ALLOW,
+        ],
+    ],
+];
