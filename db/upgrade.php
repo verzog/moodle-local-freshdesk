@@ -168,5 +168,15 @@ function xmldb_local_freshdesk_upgrade($oldversion): bool {
         upgrade_plugin_savepoint(true, 2026041019, 'local', 'freshdesk');
     }
 
+    if ($oldversion < 2026041020) {
+        // Privacy: the provider class now also implements
+        // \core_privacy\local\request\plugin\provider and
+        // \core_privacy\local\request\core_userlist_provider with explicit no-op
+        // methods, making it clear that the plugin holds no personal data in Moodle's
+        // database. The metadata provider continues to declare the data sent to
+        // Freshdesk. No database changes required.
+        upgrade_plugin_savepoint(true, 2026041020, 'local', 'freshdesk');
+    }
+
     return true;
 }
