@@ -97,6 +97,11 @@ class submit_ticket extends external_api {
             'screenshot' => $screenshot,
         ]);
 
+        // The widget is exposed site-wide; gate ticket submission behind the system
+        // context so guest / unauthenticated sessions cannot reach the proxy.
+        $context = \context_system::instance();
+        self::validate_context($context);
+
         $config    = get_config('local_freshdesk');
         $apikey    = (string) ($config->api_key ?? '');
         $portalurl = rtrim((string) ($config->portal_url ?? ''), '/');
@@ -205,7 +210,7 @@ class submit_ticket extends external_api {
         }
 
         $event = \local_freshdesk\event\ticket_submitted::create([
-            'context' => \context_system::instance(),
+            'context' => $context,
             'other'   => ['subject' => $params['subject']],
         ]);
         $event->trigger();

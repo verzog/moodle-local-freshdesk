@@ -160,5 +160,13 @@ function xmldb_local_freshdesk_upgrade($oldversion): bool {
         upgrade_plugin_savepoint(true, 2026041018, 'local', 'freshdesk');
     }
 
+    if ($oldversion < 2026041019) {
+        // Security: external functions (submit_ticket, search_articles, get_article) now
+        // call self::validate_context(\context_system::instance()) so the AJAX endpoints
+        // are gated behind a properly validated Moodle context, per the Moodle external
+        // services guidance. No database changes required.
+        upgrade_plugin_savepoint(true, 2026041019, 'local', 'freshdesk');
+    }
+
     return true;
 }
