@@ -208,5 +208,14 @@ function xmldb_local_freshdesk_upgrade($oldversion): bool {
         upgrade_plugin_savepoint(true, 2026041023, 'local', 'freshdesk');
     }
 
+    if ($oldversion < 2026041024) {
+        // Coding standards: rewrote the multi-line "two render modes" comment
+        // in classes/hook/output/before_footer.php as flowing prose so each
+        // line begins with exactly one space after the // marker, satisfying
+        // moodle.Commenting.InlineComment.SpacingBefore. No functional or
+        // database changes.
+        upgrade_plugin_savepoint(true, 2026041024, 'local', 'freshdesk');
+    }
+
     return true;
 }
