@@ -160,5 +160,62 @@ function xmldb_local_freshdesk_upgrade($oldversion): bool {
         upgrade_plugin_savepoint(true, 2026041018, 'local', 'freshdesk');
     }
 
+    if ($oldversion < 2026041019) {
+        // Security: external functions (submit_ticket, search_articles, get_article) now
+        // call self::validate_context(\context_system::instance()) so the AJAX endpoints
+        // are gated behind a properly validated Moodle context, per the Moodle external
+        // services guidance. No database changes required.
+        upgrade_plugin_savepoint(true, 2026041019, 'local', 'freshdesk');
+    }
+
+    if ($oldversion < 2026041020) {
+        // Privacy: the provider class now also implements
+        // \core_privacy\local\request\plugin\provider and
+        // \core_privacy\local\request\core_userlist_provider with explicit no-op
+        // methods, making it clear that the plugin holds no personal data in Moodle's
+        // database. The metadata provider continues to declare the data sent to
+        // Freshdesk. No database changes required.
+        upgrade_plugin_savepoint(true, 2026041020, 'local', 'freshdesk');
+    }
+
+    if ($oldversion < 2026041021) {
+        // Capability: introduced local/freshdesk:use, granted by default to user,
+        // student, teacher, editingteacher, and manager archetypes. The three
+        // external functions (submit_ticket, search_articles, get_article) now call
+        // require_capability('local/freshdesk:use', \context_system::instance())
+        // after validate_context(), and the before_footer hook hides the widget
+        // from users who lack the capability. The capability is created
+        // automatically by Moodle when the plugin upgrade runs.
+        upgrade_plugin_savepoint(true, 2026041021, 'local', 'freshdesk');
+    }
+
+    if ($oldversion < 2026041022) {
+        // Tiered access: users without local/freshdesk:use (guests, not-logged-in,
+        // capability denied) now see a styled "Get Help" link that opens the
+        // Freshdesk portal in a new tab — no AJAX endpoints are exercised in that
+        // mode. Users with the capability continue to get the full in-page widget
+        // (KB search, article viewer, contact form). No database changes required.
+        upgrade_plugin_savepoint(true, 2026041022, 'local', 'freshdesk');
+    }
+
+    if ($oldversion < 2026041023) {
+        // Coding standards: alphabetised the implements list on the privacy
+        // provider, removed the no-op blank line after its opening brace,
+        // dropped the unnecessary MOODLE_INTERNAL guard from lib.php (no side
+        // effects in that file), and reordered the language strings in strict
+        // alphabetical order with no inline section comments. No database
+        // changes required.
+        upgrade_plugin_savepoint(true, 2026041023, 'local', 'freshdesk');
+    }
+
+    if ($oldversion < 2026041024) {
+        // Coding standards: rewrote the multi-line "two render modes" comment
+        // in classes/hook/output/before_footer.php as flowing prose so each
+        // line begins with exactly one space after the // marker, satisfying
+        // moodle.Commenting.InlineComment.SpacingBefore. No functional or
+        // database changes.
+        upgrade_plugin_savepoint(true, 2026041024, 'local', 'freshdesk');
+    }
+
     return true;
 }

@@ -15,10 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Lib file for local_freshdesk.
- *
- * The widget is injected via the hook callback in
- * local_freshdesk\hook\output\before_footer (db/hooks.php).
+ * Capability definitions for local_freshdesk.
  *
  * @package    local_freshdesk
  * @copyright  2026 verzog
@@ -26,3 +23,22 @@
  */
 
 declare(strict_types=1);
+
+defined('MOODLE_INTERNAL') || die();
+
+$capabilities = [
+    // Allowed to use the Freshdesk support widget — search articles, view
+    // articles, and submit support tickets via the AJAX proxy. Granted to
+    // all authenticated roles by default; guests are excluded.
+    'local/freshdesk:use' => [
+        'captype'      => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes'   => [
+            'user'           => CAP_ALLOW,
+            'student'        => CAP_ALLOW,
+            'teacher'        => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager'        => CAP_ALLOW,
+        ],
+    ],
+];

@@ -17,12 +17,17 @@
 /**
  * Privacy provider for local_freshdesk.
  *
- * This plugin stores no personal data in Moodle's database. When a user
- * submits a support ticket, the following fields are transmitted to the
- * external Freshdesk service: name, email, Moodle username, user ID,
- * profile URL, current course name, page URL, role label, ticket message,
- * and an optional screenshot. Data retention is governed by Freshdesk's
- * own privacy policy.
+ * The plugin keeps no personal data inside Moodle's own database. When a
+ * user submits a support ticket the following fields are transmitted to
+ * the external Freshdesk service: name, email, Moodle username, user ID,
+ * profile URL, current course name, page URL, role label, ticket message
+ * and an optional screenshot. Retention of that data is governed by
+ * Freshdesk's privacy policy.
+ *
+ * To remain explicit, this provider implements the metadata provider (to
+ * declare the external data flow) and the request providers (to confirm
+ * that no personal data is held locally and there is therefore nothing to
+ * export, list or delete from Moodle).
  *
  * @package    local_freshdesk
  * @copyright  2026 verzog
@@ -34,6 +39,10 @@ declare(strict_types=1);
 namespace local_freshdesk\privacy;
 
 use core_privacy\local\metadata\collection;
+use core_privacy\local\request\approved_contextlist;
+use core_privacy\local\request\approved_userlist;
+use core_privacy\local\request\contextlist;
+use core_privacy\local\request\userlist;
 
 /**
  * Privacy provider declaring data sent to the external Freshdesk service.
@@ -42,7 +51,10 @@ use core_privacy\local\metadata\collection;
  * @copyright  2026 verzog
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class provider implements \core_privacy\local\metadata\provider {
+class provider implements
+    \core_privacy\local\metadata\provider,
+    \core_privacy\local\request\core_userlist_provider,
+    \core_privacy\local\request\plugin\provider {
     /**
      * Describes the personal data this plugin sends to external systems.
      *
@@ -71,5 +83,83 @@ class provider implements \core_privacy\local\metadata\provider {
         );
 
         return $collection;
+    }
+
+    /**
+     * Returns the list of contexts that contain user data for the given user.
+     *
+     * The plugin stores no personal data in Moodle, so the contextlist is
+     * always empty.
+     *
+     * @param int $userid The user to search for.
+     * @return contextlist
+     */
+    public static function get_contexts_for_userid(int $userid): contextlist {
+        return new contextlist();
+    }
+
+    /**
+     * Adds users with data in a given context to the supplied userlist.
+     *
+     * The plugin stores no personal data in Moodle, so the userlist is left
+     * untouched.
+     *
+     * @param userlist $userlist The userlist to populate.
+     * @return void
+     */
+    public static function get_users_in_context(userlist $userlist): void {
+        // The plugin holds no per-user data in Moodle's database.
+    }
+
+    /**
+     * Exports all user data for the supplied approved contextlist.
+     *
+     * The plugin stores no personal data in Moodle, so there is nothing to
+     * export.
+     *
+     * @param approved_contextlist $contextlist The approved contexts to export information for.
+     * @return void
+     */
+    public static function export_user_data(approved_contextlist $contextlist): void {
+        // The plugin holds no per-user data in Moodle's database.
+    }
+
+    /**
+     * Deletes all data for all users in the specified context.
+     *
+     * The plugin stores no personal data in Moodle, so there is nothing to
+     * delete.
+     *
+     * @param \context $context The context to delete data within.
+     * @return void
+     */
+    public static function delete_data_for_all_users_in_context(\context $context): void {
+        // The plugin holds no per-user data in Moodle's database.
+    }
+
+    /**
+     * Deletes all user data for the supplied approved contextlist.
+     *
+     * The plugin stores no personal data in Moodle, so there is nothing to
+     * delete.
+     *
+     * @param approved_contextlist $contextlist The approved contexts and user information to delete information for.
+     * @return void
+     */
+    public static function delete_data_for_user(approved_contextlist $contextlist): void {
+        // The plugin holds no per-user data in Moodle's database.
+    }
+
+    /**
+     * Deletes all user data for the supplied approved userlist.
+     *
+     * The plugin stores no personal data in Moodle, so there is nothing to
+     * delete.
+     *
+     * @param approved_userlist $userlist The approved context and users to delete information for.
+     * @return void
+     */
+    public static function delete_data_for_users(approved_userlist $userlist): void {
+        // The plugin holds no per-user data in Moodle's database.
     }
 }

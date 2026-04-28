@@ -1,12 +1,15 @@
 {{!
     @template local_freshdesk/help_button
 
-    Floating Help button injected on every Moodle page. Clicking it opens
-    the support modal rendered by templates/modal.mustache.
+    Floating Help button injected on every Moodle page. Renders as either:
+      * a <button> that opens the support modal (full widget mode), or
+      * an <a> that opens the Freshdesk portal in a new tab (pass-through
+        mode for users without local/freshdesk:use).
 
     Context variables required for this template:
     * label - Visible button label (e.g. "Get Help")
-    * arialabel - aria-label for screen readers (e.g. "Open support widget")
+    * arialabel - aria-label for screen readers
+    * href - Optional URL. When set, render as a link instead of a button.
 
     Example context (json):
     {
@@ -14,6 +17,13 @@
         "arialabel": "Open support widget"
     }
 }}
+{{#href}}
+<a id="fd-help-btn" href="{{href}}" target="_blank" rel="noopener noreferrer" aria-label="{{arialabel}}">
+    <span aria-hidden="true">&#128587;</span> {{label}}
+</a>
+{{/href}}
+{{^href}}
 <button id="fd-help-btn" type="button" aria-label="{{arialabel}}">
     <span aria-hidden="true">&#128587;</span> {{label}}
 </button>
+{{/href}}

@@ -66,6 +66,13 @@ class get_article extends external_api {
         $empty  = ['id' => 0, 'title' => '', 'description' => ''];
         $params = self::validate_parameters(self::execute_parameters(), ['articleid' => $articleid]);
 
+        // The widget is exposed site-wide; validate the system context and require the
+        // local/freshdesk:use capability so guest / unauthenticated sessions and any
+        // role explicitly denied this capability cannot reach the proxy.
+        $context = \context_system::instance();
+        self::validate_context($context);
+        require_capability('local/freshdesk:use', $context);
+
         $config    = get_config('local_freshdesk');
         $apikey    = (string) ($config->api_key ?? '');
         $portalurl = rtrim((string) ($config->portal_url ?? ''), '/');

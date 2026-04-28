@@ -56,6 +56,27 @@ Moodle treats the rename as a fresh install and runs `db/install.php`, which aut
 | Widget button colour | Hex colour for the Get Help button | `#006B6B` |
 | Hide for site administrators | Suppress the widget for Moodle admins | Disabled |
 
+## Access modes
+
+The widget renders in one of two modes, depending on the viewer's
+`local/freshdesk:use` capability (granted by default to `user`, `student`,
+`teacher`, `editingteacher`, and `manager` archetypes):
+
+- **Full widget** (capability granted): in-page modal with knowledge base
+  search, article viewer, and the contact form. All Freshdesk traffic is
+  proxied through Moodle AJAX endpoints that re-check the capability
+  server-side.
+- **Pass-through link** (capability denied — guests, not-logged-in users,
+  any role with an explicit deny): the floating "Get Help" button is
+  rendered as a link that opens the Freshdesk portal home in a new tab.
+  No AJAX endpoints are called, so the proxy attack surface is limited
+  to authenticated users with the capability.
+
+Site administrators retain full-widget access (subject to the existing
+"Hide for site administrators" setting). To customise access, edit
+`local/freshdesk:use` under **Site administration → Users → Permissions →
+Define roles**.
+
 ## Data sent to Freshdesk
 
 This plugin makes outbound HTTPS requests to the Freshdesk REST API at the
