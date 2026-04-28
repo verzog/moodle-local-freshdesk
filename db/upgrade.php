@@ -198,5 +198,15 @@ function xmldb_local_freshdesk_upgrade($oldversion): bool {
         upgrade_plugin_savepoint(true, 2026041022, 'local', 'freshdesk');
     }
 
+    if ($oldversion < 2026041023) {
+        // Coding standards: alphabetised the implements list on the privacy
+        // provider, removed the no-op blank line after its opening brace,
+        // dropped the unnecessary MOODLE_INTERNAL guard from lib.php (no side
+        // effects in that file), and reordered the language strings in strict
+        // alphabetical order with no inline section comments. No database
+        // changes required.
+        upgrade_plugin_savepoint(true, 2026041023, 'local', 'freshdesk');
+    }
+
     return true;
 }
