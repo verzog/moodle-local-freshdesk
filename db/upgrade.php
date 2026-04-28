@@ -189,5 +189,14 @@ function xmldb_local_freshdesk_upgrade($oldversion): bool {
         upgrade_plugin_savepoint(true, 2026041021, 'local', 'freshdesk');
     }
 
+    if ($oldversion < 2026041022) {
+        // Tiered access: users without local/freshdesk:use (guests, not-logged-in,
+        // capability denied) now see a styled "Get Help" link that opens the
+        // Freshdesk portal in a new tab — no AJAX endpoints are exercised in that
+        // mode. Users with the capability continue to get the full in-page widget
+        // (KB search, article viewer, contact form). No database changes required.
+        upgrade_plugin_savepoint(true, 2026041022, 'local', 'freshdesk');
+    }
+
     return true;
 }

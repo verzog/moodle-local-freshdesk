@@ -64,6 +64,7 @@ $string['noarticles']        = 'No articles found. Try different keywords or con
 $string['nocontent']         = 'No content available.';
 $string['openfullarticle']   = 'Open full article';
 $string['openinfreshdesk']   = 'Open in Freshdesk';
+$string['openportal']        = 'Open support portal in a new tab';
 $string['openwidget']        = 'Open support widget';
 $string['privacynotice']     = 'By submitting, your name, email address, and page context will be sent to our support platform (Freshdesk) to process your request.';
 $string['relatedheading']    = 'Related articles — did you find what you need?';

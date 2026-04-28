@@ -63,11 +63,13 @@ class before_footer {
             return;
         }
 
-        // Hide the widget from anyone who lacks local/freshdesk:use; the AJAX
-        // endpoints enforce the same capability so this is purely cosmetic.
-        if (!has_capability('local/freshdesk:use', \core\context\system::instance())) {
-            return;
-        }
+        // Two render modes:
+        //   - $hascap (logged-in users with local/freshdesk:use): full widget
+        //     with KB search, article viewer, and the contact form.
+        //   - everyone else (guests, not-logged-in, capability denied): a
+        //     pass-through "Get Help" link that opens the configured Freshdesk
+        //     portal in a new tab. No AJAX endpoints are called in that mode.
+        $hascap = has_capability('local/freshdesk:use', \core\context\system::instance());
 
         // Determine role from course capability (falls back to site context on non-course pages).
         $courseid  = (int) $COURSE->id;
@@ -101,6 +103,7 @@ class before_footer {
             'courseName'     => $coursename,
             'userRole'       => $rolelabel,
             'isLoggedIn'     => $isloggedin,
+            'hasCapability'  => $hascap,
             'widgetColor'    => $widgetcolor,
         ]);
 

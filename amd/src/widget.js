@@ -33,8 +33,8 @@ define(['core/ajax', 'core/templates', 'core/str'], function(Ajax, Templates, St
         'close', 'contactsupport', 'errormessage', 'errorsubject', 'gethelp',
         'initialprompt', 'loadingarticle', 'loadingsuggestions',
         'messagelabel', 'messageplaceholder', 'modaltitle', 'noarticles',
-        'nocontent', 'openfullarticle', 'openinfreshdesk', 'openwidget',
-        'privacynotice', 'relatedheading', 'removescreenshot',
+        'nocontent', 'openfullarticle', 'openinfreshdesk', 'openportal',
+        'openwidget', 'privacynotice', 'relatedheading', 'removescreenshot',
         'screenshothint', 'searchbutton', 'searching', 'searchplaceholder',
         'searchunavailable', 'send', 'sending', 'submittingas',
         'suggestedheading', 'supportrequest', 'ticketreply',
@@ -50,8 +50,9 @@ define(['core/ajax', 'core/templates', 'core/str'], function(Ajax, Templates, St
             '  padding: 12px 20px; font-size: 15px; font-weight: 600;',
             '  cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.25);',
             '  transition: background 0.2s;',
+            '  text-decoration: none; display: inline-block; line-height: 1;',
             '}',
-            '#fd-help-btn:hover { filter: brightness(1.1); }',
+            '#fd-help-btn:hover { filter: brightness(1.1); color: #fff; text-decoration: none; }',
             '#fd-modal-overlay {',
             '  display: none; position: fixed; top: 0; left: 0;',
             '  width: 100%; height: 100%;',
@@ -740,6 +741,20 @@ define(['core/ajax', 'core/templates', 'core/str'], function(Ajax, Templates, St
         });
     }
 
+    function renderPassthroughButton() {
+        return Templates.render('local_freshdesk/help_button', {
+            label:     strs.gethelp,
+            arialabel: strs.openportal,
+            href:      cfg.portalUrl + '/support/home'
+        }).then(function(html) {
+            var wrap = document.createElement('div');
+            wrap.innerHTML = html.trim();
+            var link = wrap.firstChild;
+            document.body.appendChild(link);
+            return link;
+        });
+    }
+
     function renderModal() {
         return Templates.render('local_freshdesk/modal', {
             str: {
@@ -792,14 +807,21 @@ define(['core/ajax', 'core/templates', 'core/str'], function(Ajax, Templates, St
 
             injectStyles();
 
-            return loadStrings()
-                .then(function() {
-                    return Promise.all([renderModal(), renderHelpButton()]);
-                })
-                .then(function(results) {
-                    var overlay = results[0];
-                    wireEvents(overlay);
-                });
+            return loadStrings().then(function() {
+                // Pass-through mode for users without local/freshdesk:use
+                // (guests, not-logged-in, capability denied): render only a
+                // styled link to the Freshdesk portal home, no modal, no AJAX.
+                if (!cfg.hasCapability) {
+                    return renderPassthroughButton();
+                }
+
+                // Full widget mode: KB search, article viewer, contact form.
+                return Promise.all([renderModal(), renderHelpButton()])
+                    .then(function(results) {
+                        var overlay = results[0];
+                        wireEvents(overlay);
+                    });
+            });
         }
     };
 });
