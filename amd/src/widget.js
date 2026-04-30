@@ -38,6 +38,30 @@ define(['core/ajax', 'core/templates', 'core/str'], function(Ajax, Templates, St
     ];
 
     /**
+     * Processes icon elements, converting URLs to img tags or Unicode to text.
+     *
+     * @param {HTMLElement} container - Element to process icons in
+     */
+    const processIcons = function(container) {
+        const iconElements = container.querySelectorAll('.fd-icon[data-icon]');
+        iconElements.forEach(function(el) {
+            const icon = el.getAttribute('data-icon');
+            if (!icon) {
+                return;
+            }
+            if (icon.match(/^https?:\/\//) || icon.includes('/')) {
+                const img = document.createElement('img');
+                img.src = icon;
+                img.alt = '';
+                el.innerHTML = '';
+                el.appendChild(img);
+            } else {
+                el.textContent = icon;
+            }
+        });
+    };
+
+    /**
      * Injects the required CSS styles into the document head.
      */
     const injectStyles = function() {
@@ -72,7 +96,7 @@ define(['core/ajax', 'core/templates', 'core/str'], function(Ajax, Templates, St
             '  align-items: center; justify-content: space-between;',
             '  flex-shrink: 0;',
             '}',
-            '#fd-modal-header h2 { margin: 0; font-size: 17px; font-weight: 600; color: #fff; }',
+            '#fd-modal-header h2 { margin: 0; font-size: 17px; font-weight: 600; color: #fff; flex: 1; word-break: break-word; }',
             '#fd-modal-close { background: none; border: none; color: #fff; font-size: 22px; cursor: pointer; padding: 0 4px; }',
             '#fd-search-panel { padding: 14px 16px; border-bottom: 1px solid #e5e5e5; flex-shrink: 0; }',
             '#fd-search-row { display: flex; gap: 8px; }',
@@ -94,6 +118,8 @@ define(['core/ajax', 'core/templates', 'core/str'], function(Ajax, Templates, St
             '#fd-contact-success { display: none; text-align: center; padding: 32px 16px; }',
             '#fd-screenshot-preview-wrap { position: relative; margin-top: 8px; display: none; }',
             '#fd-screenshot-img { width: 100%; max-height: 120px; object-fit: contain; border: 1px solid #ddd; }',
+            '.fd-icon { display: inline-block; vertical-align: middle; margin-right: 4px; }',
+            '.fd-icon img { height: 1em; width: 1em; object-fit: contain; }',
             '@media (max-width: 600px) { #fd-modal { width: 98vw; height: 95vh; } }'
         ].join('\n');
 
@@ -514,11 +540,13 @@ define(['core/ajax', 'core/templates', 'core/str'], function(Ajax, Templates, St
     const renderHelpButton = function() {
         return Templates.render('local_freshdesk/help_button', {
             label: strs.gethelp,
-            arialabel: strs.openwidget
+            arialabel: strs.openwidget,
+            icon: cfg.widgetIcon || '🎓'
         }).then(function(html) {
             const wrap = document.createElement('div');
             wrap.innerHTML = html.trim();
             const btn = wrap.firstChild;
+            processIcons(wrap);
             document.body.appendChild(btn);
             return btn;
         });
@@ -533,11 +561,13 @@ define(['core/ajax', 'core/templates', 'core/str'], function(Ajax, Templates, St
         return Templates.render('local_freshdesk/help_button', {
             label: strs.gethelp,
             arialabel: strs.openportal,
-            href: cfg.portalUrl + '/support/home'
+            href: cfg.portalUrl + '/support/home',
+            icon: cfg.widgetIcon || '🎓'
         }).then(function(html) {
             const wrap = document.createElement('div');
             wrap.innerHTML = html.trim();
             const link = wrap.firstChild;
+            processIcons(wrap);
             document.body.appendChild(link);
             return link;
         });
@@ -550,6 +580,8 @@ define(['core/ajax', 'core/templates', 'core/str'], function(Ajax, Templates, St
      */
     const renderModal = function() {
         return Templates.render('local_freshdesk/modal', {
+            userName: cfg.userName || '',
+            icon: cfg.widgetIcon || '🎓',
             str: {
                 title: strs.modaltitle,
                 close: strs.close,
@@ -576,6 +608,7 @@ define(['core/ajax', 'core/templates', 'core/str'], function(Ajax, Templates, St
             const wrap = document.createElement('div');
             wrap.innerHTML = html.trim();
             const overlay = wrap.firstChild;
+            processIcons(wrap);
             document.body.appendChild(overlay);
             return overlay;
         });

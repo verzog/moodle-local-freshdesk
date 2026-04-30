@@ -11,9 +11,12 @@
         subjectlabel, messagelabel, messageplaceholder, attachscreenshot,
         removescreenshot, screenshothint, privacynotice, send,
         relatedheading, contactsupport
+    * userName - Optional user's full name to display in header
+    * icon - Optional icon: Unicode character or image URL (default: 🎓)
 
     Example context (json):
     {
+        "userName": "John Smith",
         "str": {
             "title": "Support",
             "close": "Close support widget",
@@ -41,7 +44,7 @@
 <div id="fd-modal-overlay">
     <div id="fd-modal" role="dialog" aria-modal="true" aria-label="{{str.title}}">
         <div id="fd-modal-header">
-            <h2><span aria-hidden="true">&#128587;</span> {{str.title}}</h2>
+            <h2><span aria-hidden="true" class="fd-icon" data-icon="{{icon}}"></span> {{str.title}}{{#userName}} — {{userName}}{{/userName}}</h2>
             <button id="fd-modal-close" type="button" aria-label="{{str.close}}">&times;</button>
         </div>
 

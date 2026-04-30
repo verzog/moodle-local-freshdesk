@@ -70,4 +70,12 @@ if ($hassiteconfig) {
         get_string('hide_for_admins_desc', 'local_freshdesk'),
         0
     ));
+
+    $settings->add(new admin_setting_configtext(
+        'local_freshdesk/widget_icon',
+        get_string('widget_icon', 'local_freshdesk'),
+        get_string('widget_icon_desc', 'local_freshdesk'),
+        '🎓',
+        PARAM_TEXT
+    ));
 }

@@ -88,3 +88,5 @@ $string['ticketsubmitted'] = 'Your ticket has been submitted!';
 $string['viewprofile'] = 'View profile';
 $string['widget_color'] = 'Widget button colour';
 $string['widget_color_desc'] = 'Hex colour for the Get Help button, e.g. #006B6B';
+$string['widget_icon'] = 'Widget icon';
+$string['widget_icon_desc'] = 'Icon displayed in the Get Help button and modal header. Enter a Unicode character (e.g. 🎓 or ❓) or an image URL (e.g. https://example.com/icon.png). Leave blank to use the default graduation cap emoji.';

@@ -91,6 +91,7 @@ class before_footer {
         // API calls are proxied through server-side external functions.
         $portalurl   = rtrim((string) ($config->portal_url ?? 'https://thefeaturecreep.freshdesk.com'), '/');
         $widgetcolor = (string) ($config->widget_color ?? '#006B6B');
+        $widgeticon  = (string) ($config->widget_icon ?? '🎓');
 
         $PAGE->requires->data_for_js('local_freshdesk_config', [
             'portalUrl'      => $portalurl,
@@ -104,6 +105,7 @@ class before_footer {
             'isLoggedIn'     => $isloggedin,
             'hasCapability'  => $hascap,
             'widgetColor'    => $widgetcolor,
+            'widgetIcon'     => $widgeticon,
         ]);
 
         $PAGE->requires->js_call_amd('local_freshdesk/widget', 'init');
