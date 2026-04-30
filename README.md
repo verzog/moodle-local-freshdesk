@@ -15,7 +15,7 @@ A Moodle local plugin that adds a floating **Get Help** button to every page, op
 - Auto-suggested related articles also appear inside the contact form
 - Submitted tickets include page URL, course name, user role, Moodle username, profile URL, and Moodle user ID in the description
 - User role detection (Staff / Student) based on Moodle course capabilities
-- Hides automatically for guest/unauthenticated users
+- Tiered access via the `local/freshdesk:use` capability — logged-in users get the full in-page widget, guests get a pass-through link to the Freshdesk portal
 - Optional setting to hide the widget from site administrators
 - Configurable portal URL, API key, and button colour
 
@@ -155,6 +155,14 @@ local/freshdesk/
 ├── version.php                              # Plugin metadata
 └── README.md
 ```
+
+## Bug reports and contributing
+
+Issues and pull requests are welcome at
+[github.com/verzog/moodle-local_freshdesk](https://github.com/verzog/moodle-local_freshdesk).
+When reporting a bug, please include your Moodle version, the plugin
+version (from `version.php` `$plugin->release`), and the relevant
+contents of your browser's JavaScript console.
 
 ## License
 

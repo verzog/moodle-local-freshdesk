@@ -1,0 +1,12 @@
+# Local Node toolchain installed during AMD build / lint runs.
+node_modules/
+package.json
+package-lock.json
+npm-debug.log*
+
+# Editor / OS noise.
+.DS_Store
+*.swp
+*.swo
+.idea/
+.vscode/
