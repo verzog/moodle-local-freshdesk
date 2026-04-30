@@ -30,4 +30,4 @@ $plugin->component = 'local_freshdesk';
 $plugin->version   = 2026041024;
 $plugin->requires  = 2024100700; // Requires Moodle 4.5 or later.
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '2.4.2';
+$plugin->release   = '2.4.3';
