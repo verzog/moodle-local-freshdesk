@@ -96,7 +96,7 @@ define(['core/ajax', 'core/templates', 'core/str'], function(Ajax, Templates, St
             '  align-items: center; justify-content: space-between;',
             '  flex-shrink: 0;',
             '}',
-            '#fd-modal-header h2 { margin: 0; font-size: 17px; font-weight: 600; color: #fff; flex: 1; word-break: break-word; }',
+            '#fd-modal-header h2 { margin: 0; font-size: 22px; font-weight: 600; color: #fff; flex: 1; word-break: break-word; }',
             '#fd-modal-close { background: none; border: none; color: #fff; font-size: 22px; cursor: pointer; padding: 0 4px; }',
             '#fd-search-panel { padding: 14px 16px; border-bottom: 1px solid #e5e5e5; flex-shrink: 0; }',
             '#fd-search-row { display: flex; gap: 8px; }',
