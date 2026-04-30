@@ -5,7 +5,7 @@
     base search panel, an article viewer, and a contact / ticket form.
 
     Context variables required for this template:
-    * str - Object of pre-translated strings keyed by identifier:
+    * s - Object of pre-translated strings keyed by identifier:
         title, close, searchplaceholder, searchbutton, initialprompt,
         backtoresults, openfullarticle, back, ticketsubmitted, ticketreply,
         subjectlabel, messagelabel, messageplaceholder, attachscreenshot,
@@ -17,7 +17,8 @@
     Example context (json):
     {
         "userName": "John Smith",
-        "str": {
+        "icon": "🎓",
+        "s": {
             "title": "Support",
             "close": "Close support widget",
             "searchplaceholder": "Search help articles...",
@@ -42,76 +43,76 @@
     }
 }}
 <div id="fd-modal-overlay">
-    <div id="fd-modal" role="dialog" aria-modal="true" aria-label="{{str.title}}">
+    <div id="fd-modal" role="dialog" aria-modal="true" aria-label="{{s.title}}">
         <div id="fd-modal-header">
-            <h2><span aria-hidden="true" class="fd-icon" data-icon="{{icon}}"></span> {{str.title}}{{#userName}} — {{userName}}{{/userName}}</h2>
-            <button id="fd-modal-close" type="button" aria-label="{{str.close}}">&times;</button>
+            <h2><span aria-hidden="true" class="fd-icon" data-icon="{{icon}}"></span> {{s.title}}{{#userName}} — {{userName}}{{/userName}}</h2>
+            <button id="fd-modal-close" type="button" aria-label="{{s.close}}">&times;</button>
         </div>
 
         <div id="fd-search-panel">
             <div id="fd-search-row">
                 <input id="fd-search-input" type="text"
-                    placeholder="{{str.searchplaceholder}}"
-                    aria-label="{{str.searchplaceholder}}"/>
-                <button id="fd-search-btn" type="button">{{str.searchbutton}}</button>
+                    placeholder="{{s.searchplaceholder}}"
+                    aria-label="{{s.searchplaceholder}}"/>
+                <button id="fd-search-btn" type="button">{{s.searchbutton}}</button>
             </div>
         </div>
 
         <div id="fd-results">
-            <div id="fd-status">{{str.initialprompt}}</div>
+            <div id="fd-status">{{s.initialprompt}}</div>
             <div id="fd-articles"></div>
 
             <div id="fd-article-view">
                 <div id="fd-article-back">
-                    <button id="fd-article-back-btn" type="button">&#8592; {{str.backtoresults}}</button>
-                    <button id="fd-article-open-btn" type="button">{{str.openfullarticle}} &#8599;</button>
+                    <button id="fd-article-back-btn" type="button">&#8592; {{s.backtoresults}}</button>
+                    <button id="fd-article-open-btn" type="button">{{s.openfullarticle}} &#8599;</button>
                 </div>
                 <div id="fd-article-content"></div>
             </div>
 
             <div id="fd-contact-form">
                 <div id="fd-contact-form-back">
-                    <button id="fd-contact-back-btn" type="button">&#8592; {{str.back}}</button>
+                    <button id="fd-contact-back-btn" type="button">&#8592; {{s.back}}</button>
                 </div>
                 <div id="fd-contact-success">
-                    <p id="fd-contact-success-msg"><span aria-hidden="true">&#10003;</span> {{str.ticketsubmitted}}</p>
-                    <p id="fd-contact-success-sub">{{str.ticketreply}}</p>
+                    <p id="fd-contact-success-msg"><span aria-hidden="true">&#10003;</span> {{s.ticketsubmitted}}</p>
+                    <p id="fd-contact-success-sub">{{s.ticketreply}}</p>
                 </div>
                 <div id="fd-contact-fields">
                     <div id="fd-contact-userinfo"></div>
                     <div id="fd-suggest-section" style="display:none;">
-                        <p id="fd-suggest-heading">{{str.relatedheading}}</p>
+                        <p id="fd-suggest-heading">{{s.relatedheading}}</p>
                         <div id="fd-suggest-articles"></div>
                     </div>
                     <div>
-                        <label for="fd-ticket-subject">{{str.subjectlabel}}</label>
+                        <label for="fd-ticket-subject">{{s.subjectlabel}}</label>
                         <input id="fd-ticket-subject" type="text" maxlength="255" />
                     </div>
                     <div>
-                        <label for="fd-ticket-message">{{str.messagelabel}}</label>
-                        <textarea id="fd-ticket-message" placeholder="{{str.messageplaceholder}}"></textarea>
+                        <label for="fd-ticket-message">{{s.messagelabel}}</label>
+                        <textarea id="fd-ticket-message" placeholder="{{s.messageplaceholder}}"></textarea>
                     </div>
                     <div id="fd-screenshot-area">
                         <button type="button" id="fd-screenshot-attach">
-                            <span aria-hidden="true">&#128247;</span> {{str.attachscreenshot}}
+                            <span aria-hidden="true">&#128247;</span> {{s.attachscreenshot}}
                         </button>
                         <input id="fd-screenshot-file" type="file" accept="image/*" style="display:none;" />
                         <div id="fd-screenshot-preview-wrap">
                             <img id="fd-screenshot-img" alt="" />
-                            <button type="button" id="fd-screenshot-clear">&times; {{str.removescreenshot}}</button>
+                            <button type="button" id="fd-screenshot-clear">&times; {{s.removescreenshot}}</button>
                         </div>
-                        <p id="fd-screenshot-hint">{{str.screenshothint}}</p>
+                        <p id="fd-screenshot-hint">{{s.screenshothint}}</p>
                     </div>
-                    <p id="fd-contact-error"></p>
-                    <p id="fd-privacy-notice">{{str.privacynotice}}</p>
-                    <button id="fd-contact-submit" type="button">{{str.send}}</button>
+                    <p id="fd-contact-error" style="display:none;"></p>
+                    <p id="fd-privacy-notice">{{s.privacynotice}}</p>
+                    <button id="fd-contact-submit" type="button">{{s.send}}</button>
                 </div>
             </div>
         </div>
 
         <div id="fd-contact-bar">
             <button id="fd-contact-btn" type="button">
-                <span aria-hidden="true">&#9993;</span> {{str.contactsupport}}
+                <span aria-hidden="true">&#9993;</span> {{s.contactsupport}}
             </button>
         </div>
     </div>
