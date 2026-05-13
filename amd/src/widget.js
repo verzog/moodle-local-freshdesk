@@ -149,7 +149,12 @@ define(['core/ajax', 'core/templates', 'core/str'], function(Ajax, Templates, St
             '.fd-icon { display: inline-block; vertical-align: middle; margin-right: 4px; }',
             '.fd-icon img { height: 1em; width: 1em; object-fit: contain; vertical-align: middle; }',
             /* Responsive */
-            '@media (max-width: 600px) { #fd-modal { width: 98vw; height: 95vh; } }'
+            '@media (max-width: 600px) { #fd-modal { width: 98vw; height: 95vh; } }',
+            /* Hide the floating button while a Moodle modal or YUI dialog (e.g.
+               the filepicker) is open in narrow-screen / fullscreen mode, so it
+               does not cover the dialog's controls. */
+            'body.modal-open #fd-help-btn { display: none; }',
+            'body:has(.moodle-dialogue-fullscreen) #fd-help-btn { display: none; }'
         ].join('\n');
 
         const style = document.createElement('style');
